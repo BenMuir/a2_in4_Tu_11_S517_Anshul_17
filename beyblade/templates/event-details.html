@@ -1,0 +1,372 @@
+{% extends \'base.html\' %} {% block title %}Brisbane Premier 3v3 Cup | X-Burst
+Event Details{% endblock %} {% block content %}
+<main class="container py-4">
+  <!-- Breadcrumb Navigation -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="index.html">Tournaments</a></li>
+      <li class="breadcrumb-item active" aria-current="page">
+        Brisbane Premier 3v3 Cup
+      </li>
+    </ol>
+  </nav>
+
+  <!-- Acknowledgement of Country Banner -->
+  <div class="ack-banner rounded-3 mb-4 d-flex align-items-center">
+    <i class="bi bi-geo-alt-fill text-warning fs-4 me-3"></i>
+    <div>
+      <strong>Acknowledgement of Country:</strong> We acknowledge the
+      Traditional Custodians of the land on which this tournament takes place,
+      the Turrbal and Jagera peoples, and pay our respects to Elders past,
+      present, and emerging.
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Left Column: Main Tournament Content -->
+    <div class="col-lg-8">
+      <!-- Banner Image & Event Header Card -->
+      <div class="card border-0 shadow-sm overflow-hidden mb-4">
+        <img
+          src="static/img/event-deck3v3.jpg"
+          class="img-fluid"
+          alt="Brisbane Premier 3v3 Cup Tournament Arena"
+          style="max-height: 380px; object-fit: cover; width: 100%"
+        />
+        <div class="card-body p-4">
+          <div
+            class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3"
+          >
+            <span class="badge badge-status-open px-3 py-2 fs-6"
+              >Status: Open</span
+            >
+            <span class="badge bg-primary fs-6">3v3 Deck Format</span>
+          </div>
+          <h1 class="h2 fw-bold text-dark mb-3">Brisbane Premier 3v3 Cup</h1>
+          <p class="text-muted">
+            Hosted by <strong>Queensland Bladers Club</strong> - Listed on 15
+            Aug 2026
+          </p>
+
+          <hr class="my-4" />
+
+          <!-- Tournament Rules and Equipment Constraints -->
+          <h5 class="fw-bold mb-3">
+            <i class="bi bi-gear-wide-connected text-primary me-2"></i
+            >Tournament Regulations
+          </h5>
+          <div class="row g-3 mb-4">
+            <div class="col-sm-4">
+              <div class="p-3 bg-light rounded border text-center">
+                <div class="text-muted small">Match Point Cap</div>
+                <div class="fw-bold fs-5 text-dark">First to 4 Pts</div>
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="p-3 bg-light rounded border text-center">
+                <div class="text-muted small">Gear Compliance</div>
+                <div class="fw-bold fs-6 text-dark">TT & Hasbro Legal</div>
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="p-3 bg-light rounded border text-center">
+                <div class="text-muted small">Arena Type</div>
+                <div class="fw-bold fs-6 text-dark">Xtreme Stadium (BX-10)</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Overview and Rules Description -->
+          <h5 class="fw-bold mb-2">Event Overview & Schedule</h5>
+          <p class="text-secondary">
+            Welcome to the official Brisbane Premier 3v3 tournament. Competitors
+            must register a legal deck of 3 distinct Beyblade X setups with no
+            duplicate parts across blades, ratchets, or bits. Standard WBBA/WBO
+            deck rules apply.
+          </p>
+          <ul class="text-secondary">
+            <li>
+              <strong>09:30 AM:</strong> Registration check-in and launcher
+              speed calibration.
+            </li>
+            <li>
+              <strong>10:00 AM:</strong> Deck inspection and Round 1 bracket
+              pools start.
+            </li>
+            <li>
+              <strong>01:30 PM:</strong> Finals showcase and prize ceremony.
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Discussion and Community Q&A Section -->
+      <div class="card border-0 shadow-sm p-4 mb-4">
+        <h4 class="fw-bold mb-3">
+          <i class="bi bi-chat-left-text text-primary me-2"></i>Community
+          Discussion
+        </h4>
+
+        <!-- Question Submission Form -->
+        <form id="commentForm" class="mb-4">
+          <div class="mb-3">
+            <label for="commentInput" class="form-label small fw-semibold"
+              >Leave a Question or Note for the Host</label
+            >
+            <textarea
+              id="commentInput"
+              class="form-control"
+              rows="3"
+              placeholder="Ask about deck checks, stadium setups, or parking..."
+              required
+            ></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary btn-sm px-3 fw-semibold">
+            Post Comment
+          </button>
+        </form>
+
+        <hr />
+
+        <!-- Discussion Thread List -->
+        <div class="vstack gap-3 mt-3" id="commentThread">
+          <div class="p-3 bg-light rounded border">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <strong class="text-dark"
+                ><i class="bi bi-person-fill text-secondary me-1"></i> Alex
+                Chen</strong
+              >
+              <span class="text-muted small">21 Aug 2026, 4:15 PM</span>
+            </div>
+            <p class="mb-0 text-secondary small">
+              Are painted metal coats permitted for this tournament, or only
+              unpainted OEM blades?
+            </p>
+          </div>
+
+          <div class="p-3 bg-light rounded border">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <strong class="text-dark"
+                ><i class="bi bi-person-fill text-secondary me-1"></i> QLD
+                Bladers Club
+                <span class="badge bg-warning text-dark ms-1"
+                  >Host</span
+                ></strong
+              >
+              <span class="text-muted small">21 Aug 2026, 5:02 PM</span>
+            </div>
+            <p class="mb-0 text-secondary small">
+              Official Takara Tomy painted blades are fully legal as long as no
+              third-party weight modification has been made!
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Sticky Booking & Venue Logistics -->
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm p-4 sticky-top" style="top: 80px">
+        <h4 class="fw-bold mb-3">Reserve Player Slot</h4>
+
+        <div class="d-flex justify-content-between align-items-baseline mb-3">
+          <span class="text-muted">Registration Fee</span>
+          <span class="display-6 fw-bold text-dark">$15.00</span>
+        </div>
+
+        <div class="p-3 bg-light rounded border mb-3 small">
+          <div class="d-flex justify-content-between mb-1">
+            <span>Available Slots:</span>
+            <strong class="text-success">14 / 32 Remaining</strong>
+          </div>
+          <div class="progress" style="height: 6px">
+            <div
+              class="progress-bar bg-success"
+              role="progressbar"
+              style="width: 56%"
+              aria-valuenow="14"
+              aria-valuemin="0"
+              aria-valuemax="32"
+            ></div>
+          </div>
+        </div>
+
+        <!-- Booking Selection Form -->
+        <form id="bookingForm" class="mb-3">
+          <div class="mb-3">
+            <label for="ticketQty" class="form-label small fw-semibold"
+              >Quantity of Tickets / Competitor Slots</label
+            >
+            <select id="ticketQty" class="form-select">
+              <option value="1" data-total="15.00" selected>
+                1 Player Entry ($15.00)
+              </option>
+              <option value="2" data-total="30.00">
+                2 Player Entries ($30.00)
+              </option>
+              <option value="3" data-total="45.00">
+                3 Player Entries ($45.00)
+              </option>
+            </select>
+          </div>
+
+          <button
+            type="button"
+            class="btn btn-primary w-100 py-2 fw-semibold"
+            data-bs-toggle="modal"
+            data-bs-target="#orderModal"
+          >
+            <i class="bi bi-cart-check me-1"></i> Confirm & Book Slot
+          </button>
+        </form>
+
+        <hr />
+
+        <!-- Venue & Time Logistics Summary -->
+        <h6 class="fw-bold mb-2">Venue Logistics</h6>
+        <p class="small text-secondary mb-2">
+          <i class="bi bi-geo-alt text-danger me-1"></i> South Bank Community
+          Centre, Hall B<br />
+          410 Stanley St, South Brisbane QLD 4101
+        </p>
+        <p class="small text-secondary mb-0">
+          <i class="bi bi-clock text-primary me-1"></i> Saturday, 12 September
+          2026<br />
+          Doors open: 09:30 AM AEST
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Confirmation Modal -->
+  <div
+    class="modal fade"
+    id="orderModal"
+    tabindex="-1"
+    aria-labelledby="orderModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title fw-bold" id="orderModalLabel">
+            <i class="bi bi-check-circle-fill me-2"></i>Registration Confirmed!
+          </h5>
+          <button
+            type="button"
+            class="btn-close btn-close-white"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="text-center mb-4">
+            <div class="display-6 text-success mb-2">
+              <i class="bi bi-ticket-perforated"></i>
+            </div>
+            <h5 class="fw-bold mb-1">Brisbane Premier 3v3 Cup</h5>
+            <span class="badge bg-light text-secondary border"
+              >Order Ref: #XB-84920</span
+            >
+          </div>
+
+          <ul class="list-group list-group-flush mb-4 small">
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span class="text-muted">Registered Blader</span>
+              <strong>Ben M.</strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span class="text-muted">Quantity</span>
+              <strong id="modalQty">1 Player Entry</strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span class="text-muted">Total Paid</span>
+              <strong class="text-dark fs-6" id="modalTotal">$15.00 AUD</strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span class="text-muted">Tournament Date</span>
+              <span>Sat, 12 Sep 2026 • 10:00 AM</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span class="text-muted">Venue</span>
+              <span>South Bank Community Centre, QLD</span>
+            </li>
+          </ul>
+
+          <div
+            class="alert alert-info py-2 small mb-0 d-flex align-items-center"
+          >
+            <i class="bi bi-info-circle me-2 fs-5"></i>
+            A copy of your ticket and registration record has been saved to your
+            booking history.
+          </div>
+        </div>
+        <div class="modal-footer bg-light">
+          <button
+            type="button"
+            class="btn btn-outline-secondary btn-sm"
+            data-bs-dismiss="modal"
+          >
+            Close
+          </button>
+          <a
+            href="booking-history.html"
+            class="btn btn-primary btn-sm fw-semibold"
+          >
+            <i class="bi bi-wallet2 me-1"></i> View My Registrations
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Client-side Interactivity Scripts -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // Synchronize selected ticket quantity and calculated pricing into the confirmation modal
+    const qtySelect = document.getElementById("ticketQty");
+    const modalQty = document.getElementById("modalQty");
+    const modalTotal = document.getElementById("modalTotal");
+
+    if (qtySelect && modalQty && modalTotal) {
+      qtySelect.addEventListener("change", () => {
+        const selectedOption = qtySelect.options[qtySelect.selectedIndex];
+        modalQty.textContent = `${qtySelect.value} Player ${
+          qtySelect.value > 1 ? "Entries" : "Entry"
+        }`;
+        modalTotal.textContent = `$${selectedOption.getAttribute("data-total")} AUD`;
+      });
+    }
+
+    // Dynamically append new community comments to the discussion thread
+    const commentForm = document.getElementById("commentForm");
+    const commentInput = document.getElementById("commentInput");
+    const commentThread = document.getElementById("commentThread");
+
+    if (commentForm && commentInput && commentThread) {
+      commentForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const message = commentInput.value.trim();
+
+        if (message !== "") {
+          const newCommentCard = document.createElement("div");
+          newCommentCard.className = "p-3 bg-light rounded border";
+          newCommentCard.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <strong class="text-dark">
+                    <i class="bi bi-person-fill text-secondary me-1"></i> Ben M.
+                  </strong>
+                  <span class="text-muted small">Just now</span>
+                </div>
+                <p class="mb-0 text-secondary small">${message}</p>
+              `;
+
+          commentThread.prepend(newCommentCard);
+          commentInput.value = "";
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

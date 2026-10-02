@@ -1,0 +1,401 @@
+{% extends \'base.html\' %} {% block title %}Host a Tournament | X-Burst{%
+endblock %} {% block content %}
+<main class="container py-4">
+  <!-- Breadcrumb Navigation -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="index.html">Tournaments</a></li>
+      <li class="breadcrumb-item active" aria-current="page">
+        Host New Tournament
+      </li>
+    </ol>
+  </nav>
+
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+      <div class="card border-0 shadow-sm p-4 p-md-5">
+        <div class="mb-4">
+          <h2 class="fw-bold mb-1">Create a Beyblade X Tournament</h2>
+          <p class="text-muted">
+            Fill out the event details, technical format constraints, and venue
+            information.
+          </p>
+        </div>
+
+        <!-- Tournament Creation Form -->
+        <form id="createEventForm">
+          <!-- General Tournament Information -->
+          <h5 class="fw-bold text-primary mb-3">
+            <i class="bi bi-info-circle me-2"></i>General Information
+          </h5>
+
+          <div class="mb-3">
+            <label for="eventTitle" class="form-label fw-semibold"
+              >Tournament Title <span class="text-danger">*</span></label
+            >
+            <input
+              type="text"
+              class="form-control"
+              id="eventTitle"
+              placeholder="e.g., Gold Coast Spring 1v1 Swiss Open"
+              required
+            />
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label for="eventCategory" class="form-label fw-semibold"
+                >Tournament Category <span class="text-danger">*</span></label
+              >
+              <select class="form-select" id="eventCategory" required>
+                <option value="" disabled selected>
+                  Select format category...
+                </option>
+                <option value="3v3 Deck Format">3v3 Deck Format</option>
+                <option value="1v1 Swiss">1v1 Swiss</option>
+                <option value="Limited Format">Limited Format</option>
+                <option value="Casual Free-Play">Casual Free-Play</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="eventDate" class="form-label fw-semibold"
+                >Date & Start Time <span class="text-danger">*</span></label
+              >
+              <input
+                type="datetime-local"
+                class="form-control"
+                id="eventDate"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="eventVenue" class="form-label fw-semibold"
+              >Venue Address & Hall Details
+              <span class="text-danger">*</span></label
+            >
+            <input
+              type="text"
+              class="form-control"
+              id="eventVenue"
+              placeholder="e.g., Chermside Community Hall, 123 Main St, Chermside QLD 4032"
+              required
+            />
+          </div>
+
+          <!-- Streamlined Banner Image Selection -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold"
+              >Tournament Banner Image <span class="text-danger">*</span></label
+            >
+
+            <!-- Preset Selector Dropdown -->
+            <div class="input-group mb-2">
+              <span class="input-group-text"><i class="bi bi-image"></i></span>
+              <select class="form-select" id="bannerPresetSelect">
+                <option value="static/img/event-deck3v3.jpg" selected>
+                  Preset: 3v3 Team Stadium Setup
+                </option>
+                <option value="static/img/event-swiss.jpg">
+                  Preset: Triple Blade Deck Display
+                </option>
+                <option value="static/img/event-freeplay.jpg">
+                  Preset: Community Arena Action
+                </option>
+                <option value="custom">Custom Image Link / URL...</option>
+              </select>
+            </div>
+
+            <!-- Custom URL Input (Hidden by default, reveals if Custom is selected) -->
+            <div id="customUrlWrapper" class="d-none mb-2">
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                id="eventImage"
+                name="eventImage"
+                placeholder="static/img/banner.jpg"
+                value="static/img/event-deck3v3.jpg"
+              />
+              <div class="form-text">
+                Enter a relative image path or an external web link.
+              </div>
+            </div>
+
+            <!-- Live Image Thumbnail Preview -->
+            <div
+              class="d-flex align-items-center gap-3 p-2 bg-light border rounded"
+            >
+              <img
+                id="bannerPreview"
+                src="static/img/event-deck3v3.jpg"
+                alt="Banner Preview"
+                class="rounded object-fit-cover"
+                style="width: 110px; height: 65px"
+              />
+              <div class="small text-muted">
+                <strong class="text-dark d-block">Live Preview</strong>
+                This image will be displayed on the event card and details
+                header.
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label for="eventDescription" class="form-label fw-semibold"
+              >Event Description & Rules Overview
+              <span class="text-danger">*</span></label
+            >
+            <textarea
+              class="form-control"
+              id="eventDescription"
+              rows="4"
+              placeholder="Detail the schedule, bracket structure, registration requirements, and prizes..."
+              required
+            ></textarea>
+          </div>
+
+          <hr class="my-4" />
+
+          <!-- Technical Regulations & Match Constraints -->
+          <h5 class="fw-bold text-primary mb-3">
+            <i class="bi bi-gear-wide-connected me-2"></i>Technical Regulations
+            & Constraints
+          </h5>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-4">
+              <label for="matchPoints" class="form-label fw-semibold"
+                >Match Point Cap</label
+              >
+              <input
+                type="number"
+                class="form-control"
+                id="matchPoints"
+                value="4"
+                min="1"
+                max="10"
+                required
+              />
+              <div class="form-text">
+                Points required to win match (e.g., 4 pts).
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label for="gearLegality" class="form-label fw-semibold"
+                >Gear Compliance</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="gearLegality"
+                value="Official TT & Hasbro Legal"
+                required
+              />
+              <div class="form-text">Part legality specifications.</div>
+            </div>
+            <div class="col-md-4">
+              <label for="stadiumType" class="form-label fw-semibold"
+                >Arena Model Provided</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="stadiumType"
+                value="Xtreme Dash Stadium (BX-10)"
+                required
+              />
+              <div class="form-text">Stadium type provided at tables.</div>
+            </div>
+          </div>
+
+          <hr class="my-4" />
+
+          <!-- Capacity & Entry Pricing -->
+          <h5 class="fw-bold text-primary mb-3">
+            <i class="bi bi-ticket-perforated me-2"></i>Capacity & Ticketing
+          </h5>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label for="ticketCapacity" class="form-label fw-semibold"
+                >Total Ticket Capacity (Player Cap)
+                <span class="text-danger">*</span></label
+              >
+              <input
+                type="number"
+                class="form-control"
+                id="ticketCapacity"
+                min="2"
+                max="128"
+                placeholder="32"
+                required
+              />
+              <div class="form-text">
+                Maximum player entries allowed before listing switches to 'Sold
+                Out'.
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label for="ticketPrice" class="form-label fw-semibold"
+                >Registration Fee ($ AUD)
+                <span class="text-danger">*</span></label
+              >
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input
+                  type="number"
+                  step="0.50"
+                  class="form-control"
+                  id="ticketPrice"
+                  placeholder="15.00"
+                  required
+                />
+              </div>
+              <div class="form-text">
+                Enter 0.00 for free community sessions.
+              </div>
+            </div>
+          </div>
+
+          <hr class="my-4" />
+
+          <!-- Cultural Protocol Protocols -->
+          <h5 class="fw-bold text-primary mb-3">
+            <i class="bi bi-geo-alt me-2"></i>Cultural Protocol
+          </h5>
+
+          <div class="mb-3">
+            <label for="ackSelect" class="form-label fw-semibold"
+              >Acknowledgement of Country Statement
+              <span class="text-danger">*</span></label
+            >
+            <select class="form-select mb-2" id="ackSelect" required>
+              <option value="none">No Acknowledgement</option>
+              <option value="generic" selected>
+                Acknowledgement of Country: Generic
+              </option>
+              <option value="enhanced">
+                Acknowledgement of Country: Enhanced (Custom Traditional
+                Custodians)
+              </option>
+            </select>
+            <div class="form-text">
+              Select an Acknowledgement of Country statement to be rendered on
+              the tournament details page.
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label
+              for="customAckText"
+              class="form-label small fw-semibold text-muted"
+              >Enhanced Statement Details (Optional)</label
+            >
+            <input
+              type="text"
+              class="form-control form-control-sm"
+              id="customAckText"
+              placeholder="e.g., Paying respects to the Turrbal and Jagera peoples..."
+            />
+          </div>
+
+          <!-- Form Action Controls -->
+          <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+            <a href="index.html" class="btn btn-outline-secondary px-4"
+              >Cancel</a
+            >
+            <button type="submit" class="btn btn-primary px-4 fw-semibold">
+              <i class="bi bi-check-circle me-1"></i> Publish Tournament
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Form Validation, Image Preview, and Session Storage Logic -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // Banner preset selection and dynamic preview logic
+    const bannerPreset = document.getElementById("bannerPresetSelect");
+    const customUrlWrapper = document.getElementById("customUrlWrapper");
+    const eventImageInput = document.getElementById("eventImage");
+    const bannerPreview = document.getElementById("bannerPreview");
+
+    if (bannerPreset && customUrlWrapper && eventImageInput && bannerPreview) {
+      bannerPreset.addEventListener("change", () => {
+        if (bannerPreset.value === "custom") {
+          customUrlWrapper.classList.remove("d-none");
+          eventImageInput.value = "";
+          eventImageInput.focus();
+        } else {
+          customUrlWrapper.classList.add("d-none");
+          eventImageInput.value = bannerPreset.value;
+          bannerPreview.src = bannerPreset.value;
+        }
+      });
+
+      // Live update thumbnail if user enters a custom image link
+      eventImageInput.addEventListener("input", () => {
+        if (eventImageInput.value.trim() !== "") {
+          bannerPreview.src = eventImageInput.value.trim();
+        }
+      });
+    }
+
+    // Form submission handling using sessionStorage
+    const form = document.getElementById("createEventForm");
+    if (form) {
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        // Map user-selected category to filter tag
+        const categorySelect = document.getElementById("eventCategory").value;
+        let filterCat = "deck3v3";
+        if (categorySelect.includes("Swiss")) filterCat = "swiss1v1";
+        if (categorySelect.includes("Limited")) filterCat = "limited";
+        if (categorySelect.includes("Free-Play")) filterCat = "freeplay";
+
+        // Format timestamp for display
+        const rawDate = document.getElementById("eventDate").value;
+        const formattedDate = rawDate
+          ? new Date(rawDate).toLocaleString("en-AU", {
+              weekday: "short",
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+          : "Upcoming Date";
+
+        // Construct tournament object
+        const newTournament = {
+          title: document.getElementById("eventTitle").value,
+          category: categorySelect,
+          filterCategory: filterCat,
+          date: formattedDate,
+          venue: document.getElementById("eventVenue").value,
+          image:
+            document.getElementById("eventImage").value ||
+            "static/img/event-deck3v3.jpg",
+          description: document.getElementById("eventDescription").value,
+          capacity: document.getElementById("ticketCapacity").value,
+          price: parseFloat(
+            document.getElementById("ticketPrice").value,
+          ).toFixed(2),
+        };
+
+        // Store event details and trigger confirmation banner
+        sessionStorage.setItem("xb_newEvent", JSON.stringify(newTournament));
+        sessionStorage.setItem("xb_showSuccessToast", "true");
+
+        // Redirect back to catalog
+        window.location.href = "index.html";
+      });
+    }
+  });
+</script>
+{% endblock %}

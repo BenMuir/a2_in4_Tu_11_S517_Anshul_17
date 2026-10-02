@@ -1,0 +1,12 @@
+# Python environment and cache
+venv/
+env/
+__pycache__/
+*.pyc
+
+# IDEs and OS files
+.vscode/
+.idea/
+.DS_Store
+
+# Note: The SQLite database (.sqlite) is deliberately NOT ignored here 
