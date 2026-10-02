@@ -1,10 +1,12 @@
-{% extends \'base.html\' %} {% block title %}My Registrations & Orders |
-X-Burst{% endblock %} {% block content %}
+{% extends 'base.html' %} {% block title %}My Registrations & Orders | X-Burst{%
+endblock %} {% block content %}
 <main class="container py-4">
   <!-- Breadcrumb Navigation -->
   <nav aria-label="breadcrumb" class="mb-3">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="index.html">Tournaments</a></li>
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('main.index') }}">Tournaments</a>
+      </li>
       <li class="breadcrumb-item active" aria-current="page">
         Booking History
       </li>
@@ -23,7 +25,7 @@ X-Burst{% endblock %} {% block content %}
       </p>
     </div>
     <a
-      href="index.html"
+      href="{{ url_for('main.index') }}"
       class="btn btn-outline-primary btn-sm align-self-start align-self-md-center"
     >
       <i class="bi bi-search me-1"></i> Browse More Events
@@ -102,7 +104,7 @@ X-Burst{% endblock %} {% block content %}
             </td>
             <td>
               <a
-                href="event-details.html"
+                href="{{ url_for('main.event_details') }}"
                 class="fw-bold text-decoration-none text-primary"
               >
                 Brisbane Premier 3v3 Cup
@@ -124,7 +126,7 @@ X-Burst{% endblock %} {% block content %}
             <td><span class="badge bg-success">Confirmed</span></td>
             <td class="text-end pe-3">
               <a
-                href="event-details.html"
+                href="{{ url_for('main.event_details') }}"
                 class="btn btn-outline-primary btn-sm"
                 >View Event</a
               >
@@ -139,7 +141,7 @@ X-Burst{% endblock %} {% block content %}
             </td>
             <td>
               <a
-                href="event-details.html"
+                href="{{ url_for('main.event_details') }}"
                 class="fw-bold text-decoration-none text-primary"
               >
                 Northside 1v1 Swiss Showdown
@@ -161,7 +163,7 @@ X-Burst{% endblock %} {% block content %}
             <td><span class="badge bg-success">Confirmed</span></td>
             <td class="text-end pe-3">
               <a
-                href="event-details.html"
+                href="{{ url_for('main.event_details') }}"
                 class="btn btn-outline-primary btn-sm"
                 >View Event</a
               >
@@ -176,7 +178,7 @@ X-Burst{% endblock %} {% block content %}
             </td>
             <td>
               <a
-                href="event-details.html"
+                href="{{ url_for('main.event_details') }}"
                 class="fw-bold text-decoration-none text-secondary"
               >
                 Winter Warmup Free-Play Meet
@@ -198,7 +200,7 @@ X-Burst{% endblock %} {% block content %}
             <td><span class="badge bg-secondary">Attended</span></td>
             <td class="text-end pe-3">
               <a
-                href="event-details.html"
+                href="{{ url_for('main.event_details') }}"
                 class="btn btn-outline-secondary btn-sm"
                 >View Details</a
               >

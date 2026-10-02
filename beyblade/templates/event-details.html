@@ -1,10 +1,12 @@
-{% extends \'base.html\' %} {% block title %}Brisbane Premier 3v3 Cup | X-Burst
+{% extends 'base.html' %} {% block title %}Brisbane Premier 3v3 Cup | X-Burst
 Event Details{% endblock %} {% block content %}
 <main class="container py-4">
   <!-- Breadcrumb Navigation -->
   <nav aria-label="breadcrumb" class="mb-3">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="index.html">Tournaments</a></li>
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('main.index') }}">Tournaments</a>
+      </li>
       <li class="breadcrumb-item active" aria-current="page">
         Brisbane Premier 3v3 Cup
       </li>
@@ -28,7 +30,7 @@ Event Details{% endblock %} {% block content %}
       <!-- Banner Image & Event Header Card -->
       <div class="card border-0 shadow-sm overflow-hidden mb-4">
         <img
-          src="static/img/event-deck3v3.jpg"
+          src="{{ url_for('static', filename='img/event-deck3v3.jpg') }}"
           class="img-fluid"
           alt="Brisbane Premier 3v3 Cup Tournament Arena"
           style="max-height: 380px; object-fit: cover; width: 100%"
@@ -146,13 +148,11 @@ Event Details{% endblock %} {% block content %}
 
           <div class="p-3 bg-light rounded border">
             <div class="d-flex justify-content-between align-items-center mb-1">
-              <strong class="text-dark"
-                ><i class="bi bi-person-fill text-secondary me-1"></i> QLD
+              <strong class="text-dark">
+                <i class="bi bi-person-fill text-secondary me-1"></i> QLD
                 Bladers Club
-                <span class="badge bg-warning text-dark ms-1"
-                  >Host</span
-                ></strong
-              >
+                <span class="badge bg-warning text-dark ms-1">Host</span>
+              </strong>
               <span class="text-muted small">21 Aug 2026, 5:02 PM</span>
             </div>
             <p class="mb-0 text-secondary small">
@@ -310,7 +310,7 @@ Event Details{% endblock %} {% block content %}
             Close
           </button>
           <a
-            href="booking-history.html"
+            href="{{ url_for('main.booking_history') }}"
             class="btn btn-primary btn-sm fw-semibold"
           >
             <i class="bi bi-wallet2 me-1"></i> View My Registrations

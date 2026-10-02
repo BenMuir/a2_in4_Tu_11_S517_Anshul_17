@@ -15,8 +15,8 @@ def create_app():
     db.init_app(app)
 
     # Import and register the routing blueprint we defined earlier
-    from .routes import main_bp
-    app.register_blueprint(main_bp)
+    from .routes import bp
+    app.register_blueprint(bp)
 
     # Custom error handlers required by the assignment guidelines
     @app.errorhandler(404)

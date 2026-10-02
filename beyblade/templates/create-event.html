@@ -1,10 +1,12 @@
-{% extends \'base.html\' %} {% block title %}Host a Tournament | X-Burst{%
+{% extends 'base.html' %} {% block title %}Host a Tournament | X-Burst{%
 endblock %} {% block content %}
 <main class="container py-4">
   <!-- Breadcrumb Navigation -->
   <nav aria-label="breadcrumb" class="mb-3">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="index.html">Tournaments</a></li>
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('main.index') }}">Tournaments</a>
+      </li>
       <li class="breadcrumb-item active" aria-current="page">
         Host New Tournament
       </li>
@@ -94,13 +96,20 @@ endblock %} {% block content %}
             <div class="input-group mb-2">
               <span class="input-group-text"><i class="bi bi-image"></i></span>
               <select class="form-select" id="bannerPresetSelect">
-                <option value="static/img/event-deck3v3.jpg" selected>
+                <option
+                  value="{{ url_for('static', filename='img/event-deck3v3.jpg') }}"
+                  selected
+                >
                   Preset: 3v3 Team Stadium Setup
                 </option>
-                <option value="static/img/event-swiss.jpg">
+                <option
+                  value="{{ url_for('static', filename='img/event-swiss.jpg') }}"
+                >
                   Preset: Triple Blade Deck Display
                 </option>
-                <option value="static/img/event-freeplay.jpg">
+                <option
+                  value="{{ url_for('static', filename='img/event-freeplay.jpg') }}"
+                >
                   Preset: Community Arena Action
                 </option>
                 <option value="custom">Custom Image Link / URL...</option>
@@ -114,8 +123,8 @@ endblock %} {% block content %}
                 class="form-control form-control-sm"
                 id="eventImage"
                 name="eventImage"
-                placeholder="static/img/banner.jpg"
-                value="static/img/event-deck3v3.jpg"
+                placeholder="{{ url_for('static', filename='img/banner.jpg') }}"
+                value="{{ url_for('static', filename='img/event-deck3v3.jpg') }}"
               />
               <div class="form-text">
                 Enter a relative image path or an external web link.
@@ -128,7 +137,7 @@ endblock %} {% block content %}
             >
               <img
                 id="bannerPreview"
-                src="static/img/event-deck3v3.jpg"
+                src="{{ url_for('static', filename='img/event-deck3v3.jpg') }}"
                 alt="Banner Preview"
                 class="rounded object-fit-cover"
                 style="width: 110px; height: 65px"
@@ -302,7 +311,9 @@ endblock %} {% block content %}
 
           <!-- Form Action Controls -->
           <div class="d-flex justify-content-end gap-2 pt-3 border-top">
-            <a href="index.html" class="btn btn-outline-secondary px-4"
+            <a
+              href="{{ url_for('main.index') }}"
+              class="btn btn-outline-secondary px-4"
               >Cancel</a
             >
             <button type="submit" class="btn btn-primary px-4 fw-semibold">
@@ -380,7 +391,7 @@ endblock %} {% block content %}
           venue: document.getElementById("eventVenue").value,
           image:
             document.getElementById("eventImage").value ||
-            "static/img/event-deck3v3.jpg",
+            "{{ url_for('static', filename='img/event-deck3v3.jpg') }}",
           description: document.getElementById("eventDescription").value,
           capacity: document.getElementById("ticketCapacity").value,
           price: parseFloat(
@@ -393,7 +404,7 @@ endblock %} {% block content %}
         sessionStorage.setItem("xb_showSuccessToast", "true");
 
         // Redirect back to catalog
-        window.location.href = "index.html";
+        window.location.href = "{{ url_for('main.index') }}";
       });
     }
   });
