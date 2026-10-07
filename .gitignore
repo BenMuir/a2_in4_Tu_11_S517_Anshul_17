@@ -1,8 +1,14 @@
 # Python environment and cache
 venv/
+.venv/
 env/
+.env/
 __pycache__/
 *.pyc
+
+# Flask / secrets
+instance/
+.env
 
 # IDEs and OS files
 .vscode/
