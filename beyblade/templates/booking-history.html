@@ -1,0 +1,214 @@
+{% extends 'base.html' %} {% block title %}My Registrations & Orders | X-Burst{%
+endblock %} {% block content %}
+<main class="container py-4">
+  <!-- Breadcrumb Navigation -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('main.index') }}">Tournaments</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        Booking History
+      </li>
+    </ol>
+  </nav>
+
+  <!-- Dashboard Overview Header -->
+  <div
+    class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3"
+  >
+    <div>
+      <h2 class="fw-bold mb-1">My Tournament Registrations</h2>
+      <p class="text-muted mb-0">
+        View your active tournament tickets, booking reference codes, and
+        transaction records.
+      </p>
+    </div>
+    <a
+      href="{{ url_for('main.index') }}"
+      class="btn btn-outline-primary btn-sm align-self-start align-self-md-center"
+    >
+      <i class="bi bi-search me-1"></i> Browse More Events
+    </a>
+  </div>
+
+  <!-- Account Registration Metrics -->
+  <div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-4">
+      <div class="card border-0 shadow-sm p-3 bg-white">
+        <div class="d-flex align-items-center">
+          <div class="rounded-circle bg-primary-subtle text-primary p-3 me-3">
+            <i class="bi bi-ticket-detailed fs-4"></i>
+          </div>
+          <div>
+            <div class="text-muted small">Active Tickets</div>
+            <h4 class="fw-bold mb-0">2 Entries</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-4">
+      <div class="card border-0 shadow-sm p-3 bg-white">
+        <div class="d-flex align-items-center">
+          <div class="rounded-circle bg-success-subtle text-success p-3 me-3">
+            <i class="bi bi-check2-circle fs-4"></i>
+          </div>
+          <div>
+            <div class="text-muted small">Total Bookings</div>
+            <h4 class="fw-bold mb-0">3 Orders</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-12 col-lg-4">
+      <div class="card border-0 shadow-sm p-3 bg-white">
+        <div class="d-flex align-items-center">
+          <div class="rounded-circle bg-info-subtle text-info p-3 me-3">
+            <i class="bi bi-wallet2 fs-4"></i>
+          </div>
+          <div>
+            <div class="text-muted small">Total Spent</div>
+            <h4 class="fw-bold mb-0">$35.00 AUD</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Records Table -->
+  <div class="card border-0 shadow-sm overflow-hidden">
+    <div class="card-header bg-white py-3 border-bottom">
+      <h5 class="card-title fw-bold mb-0">Order Records</h5>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th scope="col" class="ps-3">Order Number</th>
+            <th scope="col">Tournament Name</th>
+            <th scope="col">Date & Venue</th>
+            <th scope="col" class="text-center">Tickets</th>
+            <th scope="col">Total Paid</th>
+            <th scope="col">Status</th>
+            <th scope="col" class="text-end pe-3">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Active Confirmed Booking -->
+          <tr>
+            <td class="ps-3">
+              <span class="fw-semibold text-dark">#XB-84920</span><br />
+              <span class="text-muted small">Booked: 22 Aug 2026</span>
+            </td>
+            <td>
+              <a
+                href="{{ url_for('main.event_details') }}"
+                class="fw-bold text-decoration-none text-primary"
+              >
+                Brisbane Premier 3v3 Cup
+              </a>
+              <div class="small text-muted">Format: 3v3 Deck</div>
+            </td>
+            <td class="small">
+              <div>
+                <i class="bi bi-calendar-event me-1 text-secondary"></i>
+                Sat, 12 Sep 2026 - 10:00 AM
+              </div>
+              <div class="text-muted">
+                <i class="bi bi-geo-alt me-1 text-secondary"></i> South Bank
+                Community Centre, QLD
+              </div>
+            </td>
+            <td class="text-center fw-bold">1</td>
+            <td class="fw-semibold text-dark">$15.00</td>
+            <td><span class="badge bg-success">Confirmed</span></td>
+            <td class="text-end pe-3">
+              <a
+                href="{{ url_for('main.event_details') }}"
+                class="btn btn-outline-primary btn-sm"
+                >View Event</a
+              >
+            </td>
+          </tr>
+
+          <!-- Confirmed Entry to a Sold-Out Event -->
+          <tr>
+            <td class="ps-3">
+              <span class="fw-semibold text-dark">#XB-83109</span><br />
+              <span class="text-muted small">Booked: 18 Aug 2026</span>
+            </td>
+            <td>
+              <a
+                href="{{ url_for('main.event_details') }}"
+                class="fw-bold text-decoration-none text-primary"
+              >
+                Northside 1v1 Swiss Showdown
+              </a>
+              <div class="small text-muted">Format: 1v1 Swiss</div>
+            </td>
+            <td class="small">
+              <div>
+                <i class="bi bi-calendar-event me-1 text-secondary"></i>
+                Sun, 20 Sep 2026 - 1:00 PM
+              </div>
+              <div class="text-muted">
+                <i class="bi bi-geo-alt me-1 text-secondary"></i> Chermside
+                Hobby Hub, QLD
+              </div>
+            </td>
+            <td class="text-center fw-bold">1</td>
+            <td class="fw-semibold text-dark">$10.00</td>
+            <td><span class="badge bg-success">Confirmed</span></td>
+            <td class="text-end pe-3">
+              <a
+                href="{{ url_for('main.event_details') }}"
+                class="btn btn-outline-primary btn-sm"
+                >View Event</a
+              >
+            </td>
+          </tr>
+
+          <!-- Concluded / Past Event Record -->
+          <tr class="table-light opacity-75">
+            <td class="ps-3">
+              <span class="fw-semibold text-secondary">#XB-79214</span><br />
+              <span class="text-muted small">Booked: 01 Aug 2026</span>
+            </td>
+            <td>
+              <a
+                href="{{ url_for('main.event_details') }}"
+                class="fw-bold text-decoration-none text-secondary"
+              >
+                Winter Warmup Free-Play Meet
+              </a>
+              <div class="small text-muted">Format: Casual Free-Play</div>
+            </td>
+            <td class="small">
+              <div>
+                <i class="bi bi-calendar-event me-1 text-muted"></i> Sun, 09 Aug
+                2026 (Completed)
+              </div>
+              <div class="text-muted">
+                <i class="bi bi-geo-alt me-1 text-muted"></i> West End Tabletop
+                Hall, QLD
+              </div>
+            </td>
+            <td class="text-center fw-bold">2</td>
+            <td class="fw-semibold text-secondary">$10.00</td>
+            <td><span class="badge bg-secondary">Attended</span></td>
+            <td class="text-end pe-3">
+              <a
+                href="{{ url_for('main.event_details') }}"
+                class="btn btn-outline-secondary btn-sm"
+                >View Details</a
+              >
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+{% endblock %}
