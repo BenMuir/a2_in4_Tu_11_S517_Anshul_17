@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% from '_form_field.html' import render_field %}
+{% block title %}Create Account | X-Burst{% endblock %}
+{% block content %}
+<main class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-9 col-lg-7">
+      <div class="card border-0 shadow-sm p-4 p-md-5">
+        <div class="text-center mb-4">
+          <i class="bi bi-person-plus fs-1 text-warning"></i>
+          <h2 class="fw-bold mb-1">Join X-Burst</h2>
+          <p class="text-muted mb-0">Create an account to enter brackets and host your own tournaments.</p>
+        </div>
+
+        <form method="POST" novalidate>
+          {{ form.hidden_tag() }}
+          <div class="row">
+            <div class="col-sm-6">{{ render_field(form.first_name, 'First name', 'given-name') }}</div>
+            <div class="col-sm-6">{{ render_field(form.surname, 'Surname', 'family-name') }}</div>
+          </div>
+          <div class="row">
+            <div class="col-sm-6">{{ render_field(form.email, 'you@example.com', 'email') }}</div>
+            <div class="col-sm-6">{{ render_field(form.contact_number, 'e.g. 0412 345 678', 'tel') }}</div>
+          </div>
+          {{ render_field(form.street_address, 'e.g. 2 George St, Brisbane QLD 4000', 'street-address') }}
+          <div class="row">
+            <div class="col-sm-6">
+              {{ render_field(form.password, 'At least 8 characters', 'new-password') }}
+            </div>
+            <div class="col-sm-6">
+              {{ render_field(form.confirm, 'Repeat password', 'new-password') }}
+            </div>
+          </div>
+          {{ form.submit(class="btn btn-warning fw-semibold w-100 mt-2") }}
+        </form>
+
+        <p class="text-center text-muted small mt-4 mb-0">
+          Already have an account?
+          <a href="{{ url_for('auth.login') }}">Log in</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}

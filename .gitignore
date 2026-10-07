@@ -16,3 +16,6 @@ instance/
 .DS_Store
 
 # Note: The SQLite database (.sqlite) is deliberately NOT ignored here 
+# Local SQLite database - created automatically by create_app() on first run.
+instance/
+*.sqlite
