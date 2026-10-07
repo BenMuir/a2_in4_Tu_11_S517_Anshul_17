@@ -1,9 +1,11 @@
-
-import os
-#connecting db to app
-from beyblade import db_beyblade, create_app
+from beyblade import create_app
 
 app = create_app()
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # host='0.0.0.0' exposes WSL to Windows, port=5001 avoids Windows conflicts
+    app.run(debug=True, host='0.0.0.0', port=5001)
+
+
+
+

@@ -1,0 +1,350 @@
+{% extends 'base.html' %} {% block title %}Explore Tournaments | X-Burst{%
+endblock %} {% block content %}
+<main>
+  <!-- Hero Banner Header -->
+  <header class="hero-section text-center">
+    <div class="container">
+      <h1 class="display-5 fw-bold mb-3">Competitive Beyblade X Tournaments</h1>
+      <p class="lead text-light-50 mb-4 col-lg-8 mx-auto">
+        Find local sanctioned meets, check stadium rules, book player slots, and
+        compete in the official 3v3 and 1v1 formats.
+      </p>
+      <div class="d-flex justify-content-center gap-2 flex-wrap">
+        <a href="#events-section" class="btn btn-primary px-4 fw-semibold"
+          >Browse Events</a
+        >
+        <a
+          href="{{ url_for('main.create_event') }}"
+          class="btn btn-outline-light px-4"
+          >Host a Tournament</a
+        >
+      </div>
+    </div>
+  </header>
+
+  <!-- Publish Success Alert Container -->
+  <div class="container pt-4 d-none" id="publishAlertWrapper">
+    <div
+      class="alert alert-success alert-dismissible fade show shadow-sm border-0 d-flex align-items-center"
+      role="alert"
+    >
+      <i class="bi bi-check-circle-fill fs-4 me-3 text-success"></i>
+      <div>
+        <h6 class="fw-bold mb-0">Tournament Successfully Published!</h6>
+        <span class="small" id="publishAlertMessage"
+          >Your new event has been added to the tournament catalog.</span
+        >
+      </div>
+      <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="alert"
+        aria-label="Close"
+      ></button>
+    </div>
+  </div>
+
+  <!-- Main Tournament Catalog -->
+  <section id="events-section" class="container py-5">
+    <!-- Catalog Header and Format Filtering Controls -->
+    <div
+      class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3"
+    >
+      <div>
+        <h2 class="h3 fw-bold mb-1">Upcoming Tournaments</h2>
+        <p class="text-muted mb-0">
+          Browse open registrations and check stadium gear compliance.
+        </p>
+      </div>
+
+      <!-- Format Category Pills -->
+      <div
+        class="btn-group flex-wrap"
+        role="group"
+        aria-label="Filter events by category"
+      >
+        <button
+          type="button"
+          class="btn btn-outline-secondary active btn-sm"
+          data-filter="all"
+        >
+          All Formats
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline-secondary btn-sm"
+          data-filter="deck3v3"
+        >
+          3v3 Deck
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline-secondary btn-sm"
+          data-filter="swiss1v1"
+        >
+          1v1 Swiss
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline-secondary btn-sm"
+          data-filter="limited"
+        >
+          Limited Format
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline-secondary btn-sm"
+          data-filter="freeplay"
+        >
+          Casual Free-Play
+        </button>
+      </div>
+    </div>
+
+    <!-- Responsive Tournament Grid -->
+    <div class="row g-4" id="events-grid">
+      <!-- Active Open Tournament Card -->
+      <div class="col-12 col-md-6 col-lg-4 event-item" data-category="deck3v3">
+        <div class="card h-100 event-card shadow-sm">
+          <img
+            src="{{ url_for('static', filename='img/event-deck3v3.jpg') }}"
+            class="card-img-top"
+            alt="Brisbane Championship 3v3 Deck Tournament"
+          />
+          <div class="card-body d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="badge badge-status-open px-2 py-1">Open</span>
+              <span
+                class="badge bg-primary-subtle text-primary border border-primary-subtle"
+                >3v3 Deck Format</span
+              >
+            </div>
+            <h5 class="card-title fw-bold mb-2">Brisbane Premier 3v3 Cup</h5>
+            <p class="card-text text-muted small mb-3 flex-grow-1">
+              Official 3v3 team deck tournament. First to 4 points. Standard
+              Xtreme Stadium provided. Bring TT/Hasbro legal gear.
+            </p>
+            <ul class="list-unstyled small text-secondary mb-3">
+              <li class="mb-1">
+                <i class="bi bi-calendar-event me-2 text-primary"></i> Sat, 12
+                Sep 2026 • 10:00 AM
+              </li>
+              <li class="mb-1">
+                <i class="bi bi-geo-alt me-2 text-danger"></i> South Bank
+                Community Centre, QLD
+              </li>
+              <li>
+                <i class="bi bi-ticket-perforated me-2 text-success"></i
+                ><strong>14</strong> / 32 Slots Remaining
+              </li>
+            </ul>
+            <div
+              class="d-flex justify-content-between align-items-center pt-2 border-top"
+            >
+              <span class="fs-5 fw-bold text-dark">$15.00</span>
+              <a
+                href="{{ url_for('main.event_details') }}"
+                class="btn btn-primary btn-sm px-3 fw-semibold"
+                >View & Register</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Capacity Reached / Sold Out Tournament Card -->
+      <div class="col-12 col-md-6 col-lg-4 event-item" data-category="swiss1v1">
+        <div class="card h-100 event-card shadow-sm">
+          <img
+            src="{{ url_for('static', filename='img/event-swiss.jpg') }}"
+            class="card-img-top"
+            alt="Northside 1v1 Swiss Tournament"
+          />
+          <div class="card-body d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="badge badge-status-soldout px-2 py-1">Sold Out</span>
+              <span
+                class="badge bg-info-subtle text-info-emphasis border border-info-subtle"
+                >1v1 Swiss</span
+              >
+            </div>
+            <h5 class="card-title fw-bold mb-2">
+              Northside 1v1 Swiss Showdown
+            </h5>
+            <p class="card-text text-muted small mb-3 flex-grow-1">
+              5-round Swiss format into top 8 single elimination. Bring your
+              legal 3-blade deck and calibrated launcher.
+            </p>
+            <ul class="list-unstyled small text-secondary mb-3">
+              <li class="mb-1">
+                <i class="bi bi-calendar-event me-2 text-primary"></i> Sun, 20
+                Sep 2026 • 1:00 PM
+              </li>
+              <li class="mb-1">
+                <i class="bi bi-geo-alt me-2 text-danger"></i> Chermside Hobby
+                Hub, QLD
+              </li>
+              <li>
+                <i class="bi bi-ticket-perforated me-2 text-danger"></i
+                ><strong>0</strong> / 24 Slots Remaining
+              </li>
+            </ul>
+            <div
+              class="d-flex justify-content-between align-items-center pt-2 border-top"
+            >
+              <span class="fs-5 fw-bold text-dark">$10.00</span>
+              <a
+                href="{{ url_for('main.event_details') }}"
+                class="btn btn-secondary btn-sm px-3 disabled"
+                aria-disabled="true"
+                >Sold Out</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Past Concluded / Inactive Tournament Card -->
+      <div class="col-12 col-md-6 col-lg-4 event-item" data-category="freeplay">
+        <div class="card h-100 event-card shadow-sm opacity-75">
+          <img
+            src="{{ url_for('static', filename='img/event-freeplay.jpg') }}"
+            class="card-img-top"
+            alt="Casual Free-Play Tournament Meet"
+          />
+          <div class="card-body d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="badge badge-status-inactive px-2 py-1"
+                >Inactive (Concluded)</span
+              >
+              <span
+                class="badge bg-secondary-subtle text-secondary-emphasis border"
+                >Casual Free-Play</span
+              >
+            </div>
+            <h5 class="card-title fw-bold mb-2">
+              Winter Warmup Free-Play Meet
+            </h5>
+            <p class="card-text text-muted small mb-3 flex-grow-1">
+              Casual test-and-tune event. Open stadium sessions, tuning advice,
+              and friendly exhibition matches.
+            </p>
+            <ul class="list-unstyled small text-secondary mb-3">
+              <li class="mb-1">
+                <i class="bi bi-calendar-event me-2 text-muted"></i> Sun, 09 Aug
+                2026 • Completed
+              </li>
+              <li class="mb-1">
+                <i class="bi bi-geo-alt me-2 text-muted"></i> West End Tabletop
+                Hall, QLD
+              </li>
+              <li>
+                <i class="bi bi-ticket-perforated me-2 text-muted"></i>Event
+                Ended
+              </li>
+            </ul>
+            <div
+              class="d-flex justify-content-between align-items-center pt-2 border-top"
+            >
+              <span class="fs-5 fw-bold text-muted">$5.00</span>
+              <a
+                href="{{ url_for('main.event_details') }}"
+                class="btn btn-outline-secondary btn-sm px-3"
+                >View Archive</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Dynamic Session Event Retrieval and Filtering Logic -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const eventsGrid = document.getElementById("events-grid");
+    const alertWrapper = document.getElementById("publishAlertWrapper");
+    const alertMessage = document.getElementById("publishAlertMessage");
+
+    // 1. Check for newly published event in session storage
+    const storedEvent = sessionStorage.getItem("xb_newEvent");
+    const showToast = sessionStorage.getItem("xb_showSuccessToast");
+
+    if (storedEvent && eventsGrid) {
+      const eventData = JSON.parse(storedEvent);
+
+      // Show confirmation banner if redirected from event creation
+      if (showToast === "true" && alertWrapper) {
+        alertWrapper.classList.remove("d-none");
+        alertMessage.textContent = `"${eventData.title}" has been published and is open for registrations!`;
+        sessionStorage.removeItem("xb_showSuccessToast");
+      }
+
+      // Build dynamic tournament card
+      const newCard = document.createElement("div");
+      newCard.className = "col-12 col-md-6 col-lg-4 event-item";
+      newCard.setAttribute("data-category", eventData.filterCategory);
+      newCard.innerHTML = `
+            <div class="card h-100 event-card shadow-sm border-primary">
+              <img
+                src="${eventData.image}"
+                class="card-img-top"
+                alt="${eventData.title}"
+                onerror="this.src='{{ url_for('static', filename='img/event-deck3v3.jpg') }}';"
+              />
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <span class="badge badge-status-open px-2 py-1">Open</span>
+                  <span class="badge bg-primary-subtle text-primary border border-primary-subtle">${eventData.category}</span>
+                </div>
+                <h5 class="card-title fw-bold mb-2">${eventData.title}</h5>
+                <p class="card-text text-muted small mb-3 flex-grow-1">${eventData.description}</p>
+                <ul class="list-unstyled small text-secondary mb-3">
+                  <li class="mb-1">
+                    <i class="bi bi-calendar-event me-2 text-primary"></i> ${eventData.date}
+                  </li>
+                  <li class="mb-1">
+                    <i class="bi bi-geo-alt me-2 text-danger"></i> ${eventData.venue}
+                  </li>
+                  <li>
+                    <i class="bi bi-ticket-perforated me-2 text-success"></i>
+                    <strong>${eventData.capacity}</strong> / ${eventData.capacity} Slots Remaining
+                  </li>
+                </ul>
+                <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                  <span class="fs-5 fw-bold text-dark">$${eventData.price}</span>
+                  <a href="{{ url_for('main.event_details') }}" class="btn btn-primary btn-sm px-3 fw-semibold">View & Register</a>
+                </div>
+              </div>
+            </div>
+          `;
+
+      // Prepend new card to the front of the catalog
+      eventsGrid.prepend(newCard);
+    }
+
+    // 2. Client-side category filtering logic
+    const filterButtons = document.querySelectorAll("[data-filter]");
+
+    filterButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        filterButtons.forEach((btn) => btn.classList.remove("active"));
+        button.classList.add("active");
+
+        const selectedFilter = button.getAttribute("data-filter");
+        const allCurrentCards = document.querySelectorAll(".event-item");
+
+        allCurrentCards.forEach((card) => {
+          const cardCategory = card.getAttribute("data-category");
+          if (selectedFilter === "all" || cardCategory === selectedFilter) {
+            card.classList.remove("d-none");
+          } else {
+            card.classList.add("d-none");
+          }
+        });
+      });
+    });
+  });
+</script>
+{% endblock %}
