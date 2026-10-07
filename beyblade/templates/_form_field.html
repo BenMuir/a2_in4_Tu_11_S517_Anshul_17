@@ -1,0 +1,11 @@
+{# Renders a WTForms field with Bootstrap styling and its validation errors #}
+{% macro render_field(field, placeholder='', autocomplete='') %}
+<div class="mb-3">
+  {{ field.label(class="form-label fw-semibold") }}
+  {{ field(class="form-control" ~ (" is-invalid" if field.errors else ""),
+           placeholder=placeholder, autocomplete=autocomplete) }}
+  {% for error in field.errors %}
+  <div class="invalid-feedback">{{ error }}</div>
+  {% endfor %}
+</div>
+{% endmacro %}
