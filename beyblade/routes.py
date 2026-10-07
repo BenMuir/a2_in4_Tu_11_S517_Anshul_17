@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 
 from flask import Blueprint, render_template, redirect, url_for, flash
 
@@ -33,10 +32,12 @@ def tournament_details(id):
 
 #note that i'll have to swap <inputs> for form fields into html create-event with same classes
 
+
+
+#BEN'S CHANGES
 @bp.route("/booking")
 def booking_history():
     return render_template("booking-history.html")
-=======
 from flask import Blueprint, render_template
 
 bp = Blueprint('main', __name__)
@@ -56,4 +57,3 @@ def booking_history():
 @bp.route('/event-details')
 def event_details():
     return render_template('event-details.html')
->>>>>>> f86cab5e2b542268c0820e7dad9c237b999423a0
