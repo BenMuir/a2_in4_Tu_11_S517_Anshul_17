@@ -22,7 +22,7 @@ class User(UserMixin, db.Model):
     # one-to-many: a user can post many comments
     comments = db.relationship('Comment', back_populates='user', cascade='all, delete-orphan')
     # one-to-many: a user can host many tournaments
-    tournaments_hosted = db.relationship('Tournament', back_populates='host')
+    tournaments_hosted = db.relationship('Tournament', back_populates='host', cascade='all, delete-orphan')
 
     @property
     def full_name(self):
