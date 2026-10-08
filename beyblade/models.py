@@ -9,7 +9,6 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(80), nullable=False)
     last_name = db.Column(db.String(80), nullable=False)
-    username = db.Column(db.String(80), index=True, unique=True, nullable=False)
     email = db.Column(db.String(120), index=True, unique=True, nullable=False)
     mobile = db.Column(db.String(20), nullable=False)
     street_address = db.Column(db.String(200), nullable=False)
@@ -30,7 +29,7 @@ class User(UserMixin, db.Model):
         return f"{self.first_name} {self.last_name}"
 
     def __repr__(self):
-        return f"<User {self.id} {self.username!r}>"
+        return f"<User {self.id} {self.email!r}>"
     
     
 class Tournament(db.Model):
