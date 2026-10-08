@@ -18,8 +18,11 @@ class User(UserMixin, db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # relationships
+    # one-to-many: a user can make many bookings
     bookings = db.relationship('Booking', backref='user', cascade='all, delete-orphan')
+    # one-to-many: a user can post many comments
     comments = db.relationship('Comment', backref='user', cascade='all, delete-orphan')
+    # one-to-many: a user can host many tournaments
     tournaments_hosted = db.relationship('Tournament', backref='host')
 
     @property
