@@ -23,10 +23,10 @@ def register():
             form.email.errors.append('An account with that email already exists')
         else:
             user = User(first_name=form.first_name.data.strip(),
-                        surname=form.surname.data.strip(),
+                        last_name=form.surname.data.strip(),
                         email=email,
                         password_hash=generate_password_hash(form.password.data),
-                        contact_number=form.contact_number.data.strip(),
+                        mobile=form.contact_number.data.strip(),
                         street_address=form.street_address.data.strip())
             db.session.add(user)
             db.session.commit()
