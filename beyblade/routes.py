@@ -1,5 +1,7 @@
 from flask import Blueprint, render_template, request, flash
 from flask_login import login_required
+from sqlalchemy import or_
+from .models import Tournament
 from .forms import AISearchForm
 from google import genai
 from dotenv import load_dotenv
@@ -70,10 +72,24 @@ def ai_search():
             ai_explanation = f"AI servers busy. Using standard keyword fallback: {', '.join(keywords)}"
             flash("AI is currently experiencing high demand. Used standard search instead.", "warning")
 
-        # Mock Database Results (Executes regardless of AI success or fallback)
-        results = [
-            {"name": "Brisbane Stadium Clash", "description": "Casual weekend battles at South Bank."},
-            {"name": "QUT Campus Throwdown", "description": "Competitive bracket for university students."}
-        ]
+        # --- REAL DATABASE SEARCH ---
+        # Start by looking only at open tournaments
+        query = Tournament.query.filter(Tournament.status == 'open')
+        
+        # Chain filters so the tournament must match every AI keyword extracted
+        for kw in keywords:
+            search_term = f"%{kw}%"
+            # The keyword can be found in the title, category, venue, OR description (case-insensitive)
+            query = query.filter(
+                or_(
+                    Tournament.title.ilike(search_term),
+                    Tournament.category.ilike(search_term),
+                    Tournament.venue.ilike(search_term),
+                    Tournament.description.ilike(search_term)
+                )
+            )
+            
+        # Execute the query and store the actual Tournament objects
+        results = query.all()
 
     return render_template('search.html', form=form, results=results, ai_explanation=ai_explanation)
