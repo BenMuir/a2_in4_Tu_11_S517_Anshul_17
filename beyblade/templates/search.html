@@ -1,0 +1,40 @@
+{% extends "base.html" %} {% block content %}
+<div class="container mt-5">
+  <h2>AI-Enhanced Tournament Search</h2>
+  <p>
+    Describe what you are looking for, and our AI will find the perfect Beyblade
+    X event.
+  </p>
+
+  <form method="POST" action="">
+    {{ form.hidden_tag() }}
+    <div class="form-group mb-3">
+      {{ form.search_query.label(class="form-label") }} {{
+      form.search_query(class="form-control", placeholder="e.g., Casual battles
+      in Brisbane this weekend...") }}
+    </div>
+    {{ form.submit(class="btn btn-primary") }}
+  </form>
+
+  {% if ai_explanation %}
+  <div class="alert alert-info mt-4">
+    <small>{{ ai_explanation }}</small>
+  </div>
+  {% endif %} {% if results %}
+  <h3 class="mt-4">Search Results:</h3>
+  <div class="row">
+    {% for tournament in results %}
+    <div class="col-md-6">
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">{{ tournament.name }}</h5>
+          <p class="card-text">{{ tournament.description }}</p>
+          <a href="#" class="btn btn-outline-primary">View Details</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,4 +1,14 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request, flash
+from .forms import AISearchForm
+from google import genai
+from dotenv import load_dotenv
+import os
+
+# Load the hidden variables from your .env file
+load_dotenv()
+
+# Set up the AI Client safely using the environment variable
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 bp = Blueprint('main', __name__)
 
@@ -17,3 +27,49 @@ def booking_history():
 @bp.route('/event-details')
 def event_details():
     return render_template('event-details.html')
+
+# --- NEW AI SEARCH ROUTE ---
+@bp.route('/search', methods=['GET', 'POST'])
+def ai_search():
+    form = AISearchForm()
+    results = []
+    ai_explanation = ""
+
+    if request.method == 'POST':
+        print("--- FORM SUBMITTED ---")
+
+    if form.validate_on_submit():
+        user_text = form.search_query.data
+        print(f"SUCCESS: Form passed! User searched for: {user_text}")
+        
+        try:
+            prompt = f"""
+            The user is searching for a Beyblade X tournament. 
+            User query: "{user_text}"
+            Extract 1 to 3 core search keywords (like location, style, or format). 
+            Return ONLY the keywords separated by spaces, nothing else.
+            """
+            
+            response = client.models.generate_content(
+                model='gemini-3.8-flash',
+                contents=prompt
+            )
+            
+            keywords = response.text.strip().split()
+            print(f"SUCCESS: AI Extracted Keywords: {keywords}")
+            ai_explanation = f"AI understood your search as: {', '.join(keywords)}"
+
+        except Exception as e:
+            print(f"API OVERLOADED (503). Using fallback search. Error: {str(e)}")
+            # Fallback: If AI fails, manually split the sentence so the site doesn't break
+            keywords = user_text.strip().split()
+            ai_explanation = f"AI servers busy. Using standard keyword fallback: {', '.join(keywords)}"
+            flash("AI is currently experiencing high demand. Used standard search instead.", "warning")
+
+        # Mock Database Results (Executes regardless of AI success or fallback)
+        results = [
+            {"name": "Brisbane Stadium Clash", "description": "Casual weekend battles at South Bank."},
+            {"name": "QUT Campus Throwdown", "description": "Competitive bracket for university students."}
+        ]
+
+    return render_template('search.html', form=form, results=results, ai_explanation=ai_explanation)

@@ -8,5 +8,5 @@ __pycache__/
 .vscode/
 .idea/
 .DS_Store
-
+.env
 # Note: The SQLite database (.sqlite) is deliberately NOT ignored here 
