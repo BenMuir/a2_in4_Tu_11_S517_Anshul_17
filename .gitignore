@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Python environment and cache
 venv/
 env/
@@ -10,3 +11,26 @@ __pycache__/
 .DS_Store
 .env
 # Note: The SQLite database (.sqlite) is deliberately NOT ignored here 
+=======
+# Python environment and cache
+venv/
+.venv/
+env/
+.env/
+__pycache__/
+*.pyc
+
+# Flask / secrets
+instance/
+.env
+
+# IDEs and OS files
+.vscode/
+.idea/
+.DS_Store
+
+# Note: The SQLite database (.sqlite) is deliberately NOT ignored here 
+# Local SQLite database - created automatically by create_app() on first run.
+instance/
+*.sqlite
+>>>>>>> origin/main

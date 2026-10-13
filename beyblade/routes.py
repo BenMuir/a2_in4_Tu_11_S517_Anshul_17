@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, flash
+from flask_login import login_required
 from .forms import AISearchForm
 from google import genai
 from dotenv import load_dotenv
@@ -16,11 +17,14 @@ bp = Blueprint('main', __name__)
 def index():
     return render_template('index.html')
 
+# Hosting an event and viewing registrations require an account
 @bp.route('/create-event')
+@login_required
 def create_event():
     return render_template('create-event.html')
 
 @bp.route('/booking-history')
+@login_required
 def booking_history():
     return render_template('booking-history.html')
 
