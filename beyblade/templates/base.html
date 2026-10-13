@@ -65,7 +65,8 @@
           <div class="d-flex align-items-center gap-2">
             {% if current_user.is_authenticated %}
             <span class="text-light small d-none d-md-inline me-2"
-              ><i class="bi bi-person-circle me-1"></i> {{ current_user.full_name }}</span
+              ><i class="bi bi-person-circle me-1"></i> {{
+              current_user.full_name }}</span
             >
             <a
               href="{{ url_for('main.create_event') }}"
@@ -95,15 +96,14 @@
     </nav>
 
     <!-- Flashed messages (login/logout/registration feedback) -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+    messages %}
     <div class="container mt-3">
       {% for category, message in messages %}
       <div class="alert alert-{{ category }}" role="alert">{{ message }}</div>
       {% endfor %}
     </div>
-    {% endif %}
-    {% endwith %}
+    {% endif %} {% endwith %}
 
     <!-- Dynamic Content Injection -->
     {% block content %} {% endblock %}
@@ -112,7 +112,7 @@
     <footer class="bg-dark text-light py-4 mt-auto border-top border-secondary">
       <div class="container text-center small text-secondary">
         <p class="mb-1">
-          <strong>X-Burst</strong> - Competitive Tabletop Event Management
+          <strong>X-Burst</strong> Competitive Tabletop Event Management
           Platform
         </p>
         <p class="mb-0">

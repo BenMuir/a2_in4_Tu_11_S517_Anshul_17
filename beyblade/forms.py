@@ -1,15 +1,19 @@
 from flask_wtf import FlaskForm
-from wtforms.fields import StringField, PasswordField, BooleanField, SubmitField, EmailField, TelField
-from wtforms.validators import InputRequired, Length, Email, EqualTo, Regexp
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, EmailField, TelField
+from wtforms.validators import DataRequired, InputRequired, Length, Email, EqualTo, Regexp
 
+# --- AI SEARCH FORM ---
+class AISearchForm(FlaskForm):
+    search_query = StringField('What kind of tournament are you looking for?', validators=[DataRequired()])
+    submit = SubmitField('Search with AI')
 
+# --- AUTHENTICATION FORMS ---
 # Login form - users sign in with their email and password
 class LoginForm(FlaskForm):
     email = EmailField('Email Address', validators=[InputRequired('Enter your email address')])
     password = PasswordField('Password', validators=[InputRequired('Enter your password')])
     remember = BooleanField('Remember me')
     submit = SubmitField('Log In')
-
 
 # Registration form
 class RegisterForm(FlaskForm):
