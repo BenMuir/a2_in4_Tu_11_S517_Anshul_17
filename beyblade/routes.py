@@ -7,7 +7,9 @@ from .forms import AISearchForm, TournamentForm
 from google import genai
 from dotenv import load_dotenv
 import os
+import random
 from datetime import timedelta
+from .models import Tournament, Comment, Booking
 
 # Load the hidden variables from your .env file
 load_dotenv()
@@ -86,6 +88,50 @@ def create_event():
         return redirect(url_for('main.index'))
         
     return render_template('create-event.html', form=form)
+
+# --- BOOKING ROUTE ---
+@bp.route('/event/<int:id>/book', methods=['POST'])
+@login_required
+def book_event(id):
+    tournament = Tournament.query.get_or_404(id)
+    
+    # Grab the quantity the user selected from the dropdown
+    quantity = int(request.form.get('quantity', 1))
+    
+    # Security check: Does the event have enough capacity?
+    if tournament.capacity < quantity:
+        flash('Sorry, there are not enough slots left for this event.', 'danger')
+        return redirect(url_for('main.event_details', id=tournament.id))
+        
+    # Calculate total price
+    total_paid = quantity * tournament.price
+    
+    # Generate a random 5-digit order reference (e.g., XB-84920)
+    order_ref = f"XB-{random.randint(10000, 99999)}"
+    
+    # Create the booking record in the database
+    new_booking = Booking(
+        order_ref=order_ref,
+        quantity=quantity,
+        total_paid=total_paid,
+        status='confirmed',
+        user_id=current_user.id,
+        tournament_id=tournament.id
+    )
+    
+    # Deduct the tickets from the tournament's capacity
+    tournament.capacity -= quantity
+    
+    # Automatically mark as sold out if capacity hits zero
+    if tournament.capacity <= 0:
+        tournament.status = 'sold_out'
+        
+    db.session.add(new_booking)
+    db.session.commit()
+    
+    flash(f'Successfully booked {quantity} ticket(s)!', 'success')
+    # Send them to their dashboard so they can see their new ticket
+    return redirect(url_for('main.booking_history'))
 
 # --- NEW AI SEARCH ROUTE ---
 @bp.route('/search', methods=['GET', 'POST'])
