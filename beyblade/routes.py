@@ -129,7 +129,7 @@ def book_event(id):
     db.session.add(new_booking)
     db.session.commit()
     
-    flash(f'Successfully booked {quantity} ticket(s)!', 'success')
+    flash(f'Successfully booked {quantity} ticket(s)! Your order reference is {order_ref}.', 'success')
     # Send them to their dashboard so they can see their new ticket
     return redirect(url_for('main.booking_history'))
 
