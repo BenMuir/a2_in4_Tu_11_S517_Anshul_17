@@ -109,27 +109,31 @@ Event Details{% endblock %} {% block content %}
 
           <!-- Overview and Rules Description -->
           <h5 class="fw-bold mb-2">Event Overview & Schedule</h5>
-<p class="text-secondary" style="white-space: pre-wrap;">
-  {{ tournament.description }}
-</p>
+          <p class="text-secondary" style="white-space: pre-wrap">
+            {{ tournament.description }}
           </p>
         </div>
       </div>
 
       <!-- Discussion and Community Q&A Section -->
-      <!-- We will wire up the backend for this in the next iteration! -->
       <div class="card border-0 shadow-sm p-4 mb-4">
         <h4 class="fw-bold mb-3">
           <i class="bi bi-chat-left-text text-primary me-2"></i>Community
           Discussion
         </h4>
 
-        <form id="commentForm" class="mb-4">
+        <!-- Connect the form to our new backend route -->
+        <form
+          method="POST"
+          action="{{ url_for('main.add_comment', id=tournament.id) }}"
+          class="mb-4"
+        >
           <div class="mb-3">
             <label for="commentInput" class="form-label small fw-semibold"
               >Leave a Question or Note for the Host</label
             >
             <textarea
+              name="body"
               id="commentInput"
               class="form-control"
               rows="3"
@@ -137,18 +141,40 @@ Event Details{% endblock %} {% block content %}
               required
             ></textarea>
           </div>
-          <button
-            type="button"
-            class="btn btn-primary btn-sm px-3 fw-semibold disabled"
-          >
-            Comments Coming Soon!
+          <button type="submit" class="btn btn-primary btn-sm px-3 fw-semibold">
+            Post Comment
           </button>
         </form>
 
         <hr />
 
-        <div class="text-center text-muted small py-3">
-          No comments yet. Be the first to ask a question!
+        <!-- JINJA LOOP: Render all comments linked to this tournament -->
+        <div class="vstack gap-3 mt-3">
+          {% for comment in tournament.comments %}
+          <div class="p-3 bg-light rounded border">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <strong class="text-dark">
+                <i class="bi bi-person-fill text-secondary me-1"></i> {{
+                comment.user.full_name }}
+                <!-- Automatically tag the host if they reply -->
+                {% if comment.user.id == tournament.host_id %}
+                <span class="badge bg-warning text-dark ms-1">Host</span>
+                {% endif %}
+              </strong>
+              <span class="text-muted small"
+                >{{ comment.created_at.strftime('%d %b %Y, %I:%M %p') }}</span
+              >
+            </div>
+            <p class="mb-0 text-secondary small" style="white-space: pre-wrap">
+              {{ comment.body }}
+            </p>
+          </div>
+          {% else %}
+          <!-- Empty state if no comments exist -->
+          <div class="text-center text-muted small py-3">
+            No comments yet. Be the first to ask a question!
+          </div>
+          {% endfor %}
         </div>
       </div>
     </div>

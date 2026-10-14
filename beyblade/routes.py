@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for
 from flask_login import login_required, current_user
 from sqlalchemy import or_
 from . import db
-from .models import Tournament
+from .models import Tournament, Comment
 from .forms import AISearchForm, TournamentForm
 from google import genai
 from dotenv import load_dotenv
@@ -34,6 +34,27 @@ def event_details(id):
     # Fetch the specific tournament by its ID, or return a 404 error if it doesn't exist
     tournament = Tournament.query.get_or_404(id)
     return render_template('event-details.html', tournament=tournament)
+
+# --- ADD COMMENT ROUTE ---
+@bp.route('/event/<int:id>/comment', methods=['POST'])
+@login_required
+def add_comment(id):
+    tournament = Tournament.query.get_or_404(id)
+    
+    # Grab the text from the standard HTML form
+    body = request.form.get('body')
+    
+    if body:
+        new_comment = Comment(
+            body=body,
+            user_id=current_user.id,
+            tournament_id=tournament.id
+        )
+        db.session.add(new_comment)
+        db.session.commit()
+        flash('Your comment has been posted!', 'success')
+        
+    return redirect(url_for('main.event_details', id=tournament.id))
 
 # --- EVENT CREATION ROUTE ---
 @bp.route('/create-event', methods=['GET', 'POST'])
