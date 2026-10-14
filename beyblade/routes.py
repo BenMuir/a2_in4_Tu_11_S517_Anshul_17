@@ -19,16 +19,21 @@ bp = Blueprint('main', __name__)
 
 @bp.route('/')
 def index():
-    return render_template('index.html')
+    # Fetch all open tournaments, ordered by start time
+    tournaments = Tournament.query.filter_by(status='open').order_by(Tournament.start_time).all()
+    return render_template('index.html', tournaments=tournaments)
 
 @bp.route('/booking-history')
 @login_required
 def booking_history():
     return render_template('booking-history.html')
 
-@bp.route('/event-details')
-def event_details():
-    return render_template('event-details.html')
+# --- DYNAMIC EVENT DETAILS ROUTE ---
+@bp.route('/event/<int:id>')
+def event_details(id):
+    # Fetch the specific tournament by its ID, or return a 404 error if it doesn't exist
+    tournament = Tournament.query.get_or_404(id)
+    return render_template('event-details.html', tournament=tournament)
 
 # --- EVENT CREATION ROUTE ---
 @bp.route('/create-event', methods=['GET', 'POST'])
