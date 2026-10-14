@@ -1,11 +1,13 @@
-from flask import Blueprint, render_template, request, flash
-from flask_login import login_required
+from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask_login import login_required, current_user
 from sqlalchemy import or_
+from . import db
 from .models import Tournament
-from .forms import AISearchForm
+from .forms import AISearchForm, TournamentForm
 from google import genai
 from dotenv import load_dotenv
 import os
+from datetime import timedelta
 
 # Load the hidden variables from your .env file
 load_dotenv()
@@ -19,12 +21,6 @@ bp = Blueprint('main', __name__)
 def index():
     return render_template('index.html')
 
-# Hosting an event and viewing registrations require an account
-@bp.route('/create-event')
-@login_required
-def create_event():
-    return render_template('create-event.html')
-
 @bp.route('/booking-history')
 @login_required
 def booking_history():
@@ -33,6 +29,37 @@ def booking_history():
 @bp.route('/event-details')
 def event_details():
     return render_template('event-details.html')
+
+# --- EVENT CREATION ROUTE ---
+@bp.route('/create-event', methods=['GET', 'POST'])
+@login_required
+def create_event():
+    form = TournamentForm()
+    
+    if form.validate_on_submit():
+        # Create the new tournament record
+        new_tournament = Tournament(
+            title=form.title.data,
+            category=form.category.data,
+            start_time=form.start_time.data,
+            # Database constraint requires end_time > start_time. 
+            # Defaulting to 4 hours later since it is not in the form yet.
+            end_time=form.start_time.data + timedelta(hours=4),
+            venue=form.venue.data,
+            image=form.image.data,
+            description=form.description.data,
+            capacity=form.capacity.data,
+            price=form.price.data,
+            host_id=current_user.id  # Automatically links to the logged-in user
+        )
+        
+        db.session.add(new_tournament)
+        db.session.commit()
+        
+        flash(f'Successfully created tournament: {new_tournament.title}', 'success')
+        return redirect(url_for('main.index'))
+        
+    return render_template('create-event.html', form=form)
 
 # --- NEW AI SEARCH ROUTE ---
 @bp.route('/search', methods=['GET', 'POST'])

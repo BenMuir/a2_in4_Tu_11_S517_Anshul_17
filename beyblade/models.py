@@ -2,7 +2,6 @@ from datetime import datetime
 from flask_login import UserMixin
 from . import db
 
-
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
 
@@ -17,11 +16,8 @@ class User(UserMixin, db.Model):
     created_at = db.Column(db.DateTime, default=datetime.now)
     
     # relationships
-    # one-to-many: a user can make many bookings
     bookings = db.relationship('Booking', back_populates='user', cascade='all, delete-orphan')
-    # one-to-many: a user can post many comments
     comments = db.relationship('Comment', back_populates='user', cascade='all, delete-orphan')
-    # one-to-many: a user can host many tournaments
     tournaments_hosted = db.relationship('Tournament', back_populates='host', cascade='all, delete-orphan')
 
     @property
@@ -40,25 +36,21 @@ class Tournament(db.Model):
         
     id = db.Column(db.Integer, primary_key=True)
         
-    # General info (create-event.html: eventTitle / eventCategory / eventDateTime / eventVenue)
     title = db.Column(db.String(150), nullable=False)
-    category = db.Column(db.String(50), nullable=False)   # e.g. '3v3 Deck Format', '1v1 Swiss'
+    category = db.Column(db.String(50), nullable=False)   
     start_time = db.Column(db.DateTime, nullable=False)
     end_time = db.Column(db.DateTime, nullable=False)
     venue = db.Column(db.String(200), nullable=False)
     image = db.Column(db.String(255), nullable=True)
     description = db.Column(db.Text, nullable=False)
         
-    # Technical regulations (matchPoints / gearLegality / stadiumType)
     match_points = db.Column(db.Integer, default=4)
     gear_legality = db.Column(db.String(100), nullable=True)
     stadium_type = db.Column(db.String(100), nullable=True)
         
-    # Capacity & ticketing (ticketCapacity / ticketPrice)
     capacity = db.Column(db.Integer, nullable=False)
     price = db.Column(db.Numeric(6, 2), nullable=False, default=0)
         
-    # Cultural protocol (none | generic | enhanced)
     ack_statement = db.Column(
         db.Enum('none', 'generic', 'enhanced',
             name='ack_statement',
@@ -70,12 +62,11 @@ class Tournament(db.Model):
     
     custom_ack_text = db.Column(db.String(255), nullable=True)
         
-    # Tournament status (open | sold_out | inactive | cancelled)
     status = db.Column(
         db.Enum('open', 'sold_out', 'inactive', 'cancelled',
             name='tournament_status',
-            create_constraint=True,   # adds a CHECK constraint in the database
-            validate_strings=True),   # rejects bad values in Python before the insert
+            create_constraint=True, 
+            validate_strings=True), 
             default='open',
             nullable=False,
             )
@@ -108,7 +99,7 @@ class Booking(db.Model):
     __tablename__ = 'bookings'
 
     id = db.Column(db.Integer, primary_key=True)
-    order_ref = db.Column(db.String(20), unique=True, nullable=False)  # e.g. 'XB-84920'
+    order_ref = db.Column(db.String(20), unique=True, nullable=False) 
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     tournament_id = db.Column(db.Integer, db.ForeignKey('tournaments.id'), nullable=False)
@@ -143,7 +134,7 @@ class Comment(db.Model):
     tournament_id = db.Column(db.Integer, db.ForeignKey('tournaments.id'), nullable=False)
 
     body = db.Column(db.Text, nullable=False)
-    is_host_reply = db.Column(db.Boolean, default=False)   # "Host" badge in event-details.html
+    is_host_reply = db.Column(db.Boolean, default=False)  
     created_at = db.Column(db.DateTime, default=datetime.now)
     
     user = db.relationship('User', back_populates='comments')
