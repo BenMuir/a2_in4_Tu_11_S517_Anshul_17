@@ -1,6 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, EmailField, TelField
-from wtforms.validators import DataRequired, InputRequired, Length, Email, EqualTo, Regexp
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, EmailField, TelField, SelectField, TextAreaField, IntegerField, DecimalField
+from wtforms.validators import DataRequired, InputRequired, Length, Email, EqualTo, Regexp, NumberRange, ValidationError
+from wtforms.fields import DateTimeLocalField
+from datetime import date
 
 # --- AI SEARCH FORM ---
 class AISearchForm(FlaskForm):
@@ -34,3 +36,33 @@ class RegisterForm(FlaskForm):
         InputRequired(),
         EqualTo('password', message='Passwords must match')])
     submit = SubmitField('Create Account')
+
+# --- TOURNAMENT FORM ---
+class TournamentForm(FlaskForm):
+    title = StringField('Tournament Title', validators=[DataRequired(), Length(max=120)])
+    category = SelectField('Tournament Category', choices=[
+        ('', 'Select format category...'), 
+        ('deck3v3', '3v3 Deck'),
+        ('swiss1v1', '1v1 Swiss'), 
+        ('limited', 'Limited Format'), 
+        ('freeplay', 'Casual Free-Play')
+    ], validators=[DataRequired()])
+    
+    start_time = DateTimeLocalField('Date & Start Time', format='%Y-%m-%dT%H:%M', validators=[DataRequired()])
+    venue = StringField('Venue', validators=[DataRequired(), Length(max=200)])
+    
+    image = SelectField('Banner Image', choices=[
+        ('event-deck3v3.jpg', 'Preset: 3v3 Team Stadium Setup'),
+        ('event-swiss.jpg', 'Preset: 1v1 Swiss'),
+        ('event-freeplay.jpg', 'Preset: Casual Free-Play')
+    ], validators=[DataRequired()])
+        
+    description = TextAreaField('Description', validators=[DataRequired()])
+    capacity = IntegerField('Capacity', default=32, validators=[DataRequired(), NumberRange(min=1)])
+    price = DecimalField('Registration Fee', places=2, default=15.00, validators=[DataRequired(), NumberRange(min=0)])
+    
+    submit = SubmitField('Publish Tournament')
+
+    def validate_start_time(self, field): 
+        if field.data and field.data.date() < date.today():
+            raise ValidationError("The tournament date can't be in the past.")

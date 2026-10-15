@@ -7,7 +7,7 @@ endblock %} {% block content %}
       <h1 class="display-5 fw-bold mb-3">Competitive Beyblade X Tournaments</h1>
       <p class="lead text-light-50 mb-4 col-lg-8 mx-auto">
         Find local sanctioned meets, check stadium rules, book player slots, and
-        compete in the official 3v3 and 1v1 formats.
+        compete in the official formats.
       </p>
       <div class="d-flex justify-content-center gap-2 flex-wrap">
         <a href="#events-section" class="btn btn-primary px-4 fw-semibold"
@@ -23,17 +23,21 @@ endblock %} {% block content %}
   </header>
 
   <!-- Publish Success Alert Container -->
-  <div class="container pt-4 d-none" id="publishAlertWrapper">
+  {% with messages = get_flashed_messages(with_categories=true) %} {% if
+  messages %}
+  <div class="container pt-4">
+    {% for category, message in messages %}
     <div
-      class="alert alert-success alert-dismissible fade show shadow-sm border-0 d-flex align-items-center"
+      class="alert alert-{{ category }} alert-dismissible fade show shadow-sm border-0 d-flex align-items-center"
       role="alert"
     >
+      {% if category == 'success' %}
       <i class="bi bi-check-circle-fill fs-4 me-3 text-success"></i>
+      {% else %}
+      <i class="bi bi-info-circle-fill fs-4 me-3 text-primary"></i>
+      {% endif %}
       <div>
-        <h6 class="fw-bold mb-0">Tournament Successfully Published!</h6>
-        <span class="small" id="publishAlertMessage"
-          >Your new event has been added to the tournament catalog.</span
-        >
+        <span class="small">{{ message }}</span>
       </div>
       <button
         type="button"
@@ -42,7 +46,9 @@ endblock %} {% block content %}
         aria-label="Close"
       ></button>
     </div>
+    {% endfor %}
   </div>
+  {% endif %} {% endwith %}
 
   <!-- Main Tournament Catalog -->
   <section id="events-section" class="container py-5">
@@ -103,238 +109,117 @@ endblock %} {% block content %}
 
     <!-- Responsive Tournament Grid -->
     <div class="row g-4" id="events-grid">
-      <!-- Active Open Tournament Card -->
-      <div class="col-12 col-md-6 col-lg-4 event-item" data-category="deck3v3">
+      <!-- JINJA LOOP: Generate a card for every tournament in the database -->
+      {% for tournament in tournaments %}
+
+      <div
+        class="col-12 col-md-6 col-lg-4 event-item"
+        data-category="{{ tournament.category }}"
+      >
         <div class="card h-100 event-card shadow-sm">
+          <!-- Image -->
           <img
-            src="{{ url_for('static', filename='img/event-deck3v3.jpg') }}"
+            src="{{ url_for('static', filename='img/' + tournament.image) }}"
             class="card-img-top"
-            alt="Brisbane Championship 3v3 Deck Tournament"
+            alt="{{ tournament.title }}"
+            onerror="this.src=`{{ url_for('static', filename='img/event-deck3v3.jpg') }}`;"
           />
+
           <div class="card-body d-flex flex-column">
             <div class="d-flex justify-content-between align-items-start mb-2">
+              <!-- Dynamic Status Badge -->
+              {% if tournament.status == 'open' %}
               <span class="badge badge-status-open px-2 py-1">Open</span>
+              {% elif tournament.status == 'sold_out' %}
+              <span class="badge badge-status-soldout px-2 py-1">Sold Out</span>
+              {% else %}
+              <span class="badge badge-status-inactive px-2 py-1"
+                >Inactive</span
+              >
+              {% endif %}
+
               <span
                 class="badge bg-primary-subtle text-primary border border-primary-subtle"
-                >3v3 Deck Format</span
               >
+                <!-- Clean up the display name based on the database value -->
+                {% if tournament.category == 'deck3v3' %}3v3 Deck {% elif
+                tournament.category == 'swiss1v1' %}1v1 Swiss {% elif
+                tournament.category == 'limited' %}Limited Format {% else
+                %}Casual Free-Play{% endif %}
+              </span>
             </div>
-            <h5 class="card-title fw-bold mb-2">Brisbane Premier 3v3 Cup</h5>
+
+            <h5 class="card-title fw-bold mb-2">{{ tournament.title }}</h5>
+
+            <!-- Truncate long descriptions -->
             <p class="card-text text-muted small mb-3 flex-grow-1">
-              Official 3v3 team deck tournament. First to 4 points. Standard
-              Xtreme Stadium provided. Bring TT/Hasbro legal gear.
+              {{ tournament.description[:120] }}{% if
+              tournament.description|length > 120 %}...{% endif %}
             </p>
+
             <ul class="list-unstyled small text-secondary mb-3">
               <li class="mb-1">
-                <i class="bi bi-calendar-event me-2 text-primary"></i> Sat, 12
-                Sep 2026 • 10:00 AM
+                <i class="bi bi-calendar-event me-2 text-primary"></i>
+                {{ tournament.start_time.strftime('%a, %d %b %Y • %I:%M %p') }}
               </li>
               <li class="mb-1">
-                <i class="bi bi-geo-alt me-2 text-danger"></i> South Bank
-                Community Centre, QLD
+                <i class="bi bi-geo-alt me-2 text-danger"></i> {{
+                tournament.venue }}
               </li>
               <li>
-                <i class="bi bi-ticket-perforated me-2 text-success"></i
-                ><strong>14</strong> / 32 Slots Remaining
+                <i class="bi bi-ticket-perforated me-2 text-success"></i>
+                <!-- We will add dynamic booking count later, showing capacity for now -->
+                <strong>{{ tournament.capacity }}</strong> Slots Total
               </li>
             </ul>
+
             <div
               class="d-flex justify-content-between align-items-center pt-2 border-top"
             >
-              <span class="fs-5 fw-bold text-dark">$15.00</span>
+              <span class="fs-5 fw-bold text-dark">
+                {% if tournament.price == 0 %}Free{% else %}${{
+                "%.2f"|format(tournament.price) }}{% endif %}
+              </span>
+
               <a
-                href="{{ url_for('main.event_details') }}"
+                href="{{ url_for('main.event_details', id=tournament.id) }}"
                 class="btn btn-primary btn-sm px-3 fw-semibold"
-                >View & Register</a
+                >View Details</a
               >
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Capacity Reached / Sold Out Tournament Card -->
-      <div class="col-12 col-md-6 col-lg-4 event-item" data-category="swiss1v1">
-        <div class="card h-100 event-card shadow-sm">
-          <img
-            src="{{ url_for('static', filename='img/event-swiss.jpg') }}"
-            class="card-img-top"
-            alt="Northside 1v1 Swiss Tournament"
-          />
-          <div class="card-body d-flex flex-column">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-              <span class="badge badge-status-soldout px-2 py-1">Sold Out</span>
-              <span
-                class="badge bg-info-subtle text-info-emphasis border border-info-subtle"
-                >1v1 Swiss</span
-              >
-            </div>
-            <h5 class="card-title fw-bold mb-2">
-              Northside 1v1 Swiss Showdown
-            </h5>
-            <p class="card-text text-muted small mb-3 flex-grow-1">
-              5-round Swiss format into top 8 single elimination. Bring your
-              legal 3-blade deck and calibrated launcher.
-            </p>
-            <ul class="list-unstyled small text-secondary mb-3">
-              <li class="mb-1">
-                <i class="bi bi-calendar-event me-2 text-primary"></i> Sun, 20
-                Sep 2026 • 1:00 PM
-              </li>
-              <li class="mb-1">
-                <i class="bi bi-geo-alt me-2 text-danger"></i> Chermside Hobby
-                Hub, QLD
-              </li>
-              <li>
-                <i class="bi bi-ticket-perforated me-2 text-danger"></i
-                ><strong>0</strong> / 24 Slots Remaining
-              </li>
-            </ul>
-            <div
-              class="d-flex justify-content-between align-items-center pt-2 border-top"
-            >
-              <span class="fs-5 fw-bold text-dark">$10.00</span>
-              <a
-                href="{{ url_for('main.event_details') }}"
-                class="btn btn-secondary btn-sm px-3 disabled"
-                aria-disabled="true"
-                >Sold Out</a
-              >
-            </div>
-          </div>
-        </div>
+      <!-- If the database is empty -->
+      {% else %}
+      <div class="col-12 text-center py-5">
+        <h4 class="text-muted">No upcoming tournaments found.</h4>
+        <p>
+          Be the first to
+          <a href="{{ url_for('main.create_event') }}">host one!</a>
+        </p>
       </div>
-
-      <!-- Past Concluded / Inactive Tournament Card -->
-      <div class="col-12 col-md-6 col-lg-4 event-item" data-category="freeplay">
-        <div class="card h-100 event-card shadow-sm opacity-75">
-          <img
-            src="{{ url_for('static', filename='img/event-freeplay.jpg') }}"
-            class="card-img-top"
-            alt="Casual Free-Play Tournament Meet"
-          />
-          <div class="card-body d-flex flex-column">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-              <span class="badge badge-status-inactive px-2 py-1"
-                >Inactive (Concluded)</span
-              >
-              <span
-                class="badge bg-secondary-subtle text-secondary-emphasis border"
-                >Casual Free-Play</span
-              >
-            </div>
-            <h5 class="card-title fw-bold mb-2">
-              Winter Warmup Free-Play Meet
-            </h5>
-            <p class="card-text text-muted small mb-3 flex-grow-1">
-              Casual test-and-tune event. Open stadium sessions, tuning advice,
-              and friendly exhibition matches.
-            </p>
-            <ul class="list-unstyled small text-secondary mb-3">
-              <li class="mb-1">
-                <i class="bi bi-calendar-event me-2 text-muted"></i> Sun, 09 Aug
-                2026 • Completed
-              </li>
-              <li class="mb-1">
-                <i class="bi bi-geo-alt me-2 text-muted"></i> West End Tabletop
-                Hall, QLD
-              </li>
-              <li>
-                <i class="bi bi-ticket-perforated me-2 text-muted"></i>Event
-                Ended
-              </li>
-            </ul>
-            <div
-              class="d-flex justify-content-between align-items-center pt-2 border-top"
-            >
-              <span class="fs-5 fw-bold text-muted">$5.00</span>
-              <a
-                href="{{ url_for('main.event_details') }}"
-                class="btn btn-outline-secondary btn-sm px-3"
-                >View Archive</a
-              >
-            </div>
-          </div>
-        </div>
-      </div>
+      {% endfor %}
     </div>
   </section>
 </main>
 
-<!-- Dynamic Session Event Retrieval and Filtering Logic -->
+<!-- Client-side category filtering logic -->
 <script>
   document.addEventListener("DOMContentLoaded", () => {
-    const eventsGrid = document.getElementById("events-grid");
-    const alertWrapper = document.getElementById("publishAlertWrapper");
-    const alertMessage = document.getElementById("publishAlertMessage");
-
-    // 1. Check for newly published event in session storage
-    const storedEvent = sessionStorage.getItem("xb_newEvent");
-    const showToast = sessionStorage.getItem("xb_showSuccessToast");
-
-    if (storedEvent && eventsGrid) {
-      const eventData = JSON.parse(storedEvent);
-
-      // Show confirmation banner if redirected from event creation
-      if (showToast === "true" && alertWrapper) {
-        alertWrapper.classList.remove("d-none");
-        alertMessage.textContent = `"${eventData.title}" has been published and is open for registrations!`;
-        sessionStorage.removeItem("xb_showSuccessToast");
-      }
-
-      // Build dynamic tournament card
-      const newCard = document.createElement("div");
-      newCard.className = "col-12 col-md-6 col-lg-4 event-item";
-      newCard.setAttribute("data-category", eventData.filterCategory);
-      newCard.innerHTML = `
-            <div class="card h-100 event-card shadow-sm border-primary">
-              <img
-                src="${eventData.image}"
-                class="card-img-top"
-                alt="${eventData.title}"
-                onerror="this.src='{{ url_for('static', filename='img/event-deck3v3.jpg') }}';"
-              />
-              <div class="card-body d-flex flex-column">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                  <span class="badge badge-status-open px-2 py-1">Open</span>
-                  <span class="badge bg-primary-subtle text-primary border border-primary-subtle">${eventData.category}</span>
-                </div>
-                <h5 class="card-title fw-bold mb-2">${eventData.title}</h5>
-                <p class="card-text text-muted small mb-3 flex-grow-1">${eventData.description}</p>
-                <ul class="list-unstyled small text-secondary mb-3">
-                  <li class="mb-1">
-                    <i class="bi bi-calendar-event me-2 text-primary"></i> ${eventData.date}
-                  </li>
-                  <li class="mb-1">
-                    <i class="bi bi-geo-alt me-2 text-danger"></i> ${eventData.venue}
-                  </li>
-                  <li>
-                    <i class="bi bi-ticket-perforated me-2 text-success"></i>
-                    <strong>${eventData.capacity}</strong> / ${eventData.capacity} Slots Remaining
-                  </li>
-                </ul>
-                <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-                  <span class="fs-5 fw-bold text-dark">$${eventData.price}</span>
-                  <a href="{{ url_for('main.event_details') }}" class="btn btn-primary btn-sm px-3 fw-semibold">View & Register</a>
-                </div>
-              </div>
-            </div>
-          `;
-
-      // Prepend new card to the front of the catalog
-      eventsGrid.prepend(newCard);
-    }
-
-    // 2. Client-side category filtering logic
     const filterButtons = document.querySelectorAll("[data-filter]");
 
     filterButtons.forEach((button) => {
       button.addEventListener("click", () => {
+        // Update active button styling
         filterButtons.forEach((btn) => btn.classList.remove("active"));
         button.classList.add("active");
 
         const selectedFilter = button.getAttribute("data-filter");
         const allCurrentCards = document.querySelectorAll(".event-item");
 
+        // Filter cards based on data-category attribute
         allCurrentCards.forEach((card) => {
           const cardCategory = card.getAttribute("data-category");
           if (selectedFilter === "all" || cardCategory === selectedFilter) {
