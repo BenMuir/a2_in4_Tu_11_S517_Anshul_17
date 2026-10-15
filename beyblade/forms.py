@@ -56,6 +56,15 @@ class TournamentForm(FlaskForm):
         ('event-swiss.jpg', 'Preset: 1v1 Swiss'),
         ('event-freeplay.jpg', 'Preset: Casual Free-Play')
     ], validators=[DataRequired()])
+
+    ack_statement = SelectField('Acknowledgement of Country', choices=[
+        ('none', 'No Acknowledgement'),
+        ('generic', 'Use Generic Acknowledgement (Recommended)'),
+        ('enhanced', 'Write a Custom/Enhanced Acknowledgement')
+    ], default='none')
+    
+    custom_ack_text = TextAreaField('Custom Acknowledgement', render_kw={"placeholder": "E.g., We acknowledge the Turrbal and Yuggera peoples as the First Nations owners of the lands where this tournament takes place..."})
+
         
     description = TextAreaField('Description', validators=[DataRequired()])
     capacity = IntegerField('Capacity', default=32, validators=[DataRequired(), NumberRange(min=1)])
