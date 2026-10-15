@@ -77,7 +77,9 @@ def create_event():
             description=form.description.data,
             capacity=form.capacity.data,
             price=form.price.data,
-            host_id=current_user.id  # Automatically links to the logged-in user
+            host_id=current_user.id,  # Automatically links to the logged-in user
+            ack_statement=form.ack_statement.data,
+            custom_ack_text=form.custom_ack_text.data,
         )
         
         db.session.add(new_tournament)
