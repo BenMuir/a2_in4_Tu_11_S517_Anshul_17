@@ -69,9 +69,43 @@ Event Details{% endblock %} {% block content %}
           <h1 class="h2 fw-bold text-dark mb-3">{{ tournament.title }}</h1>
 
           <p class="text-muted">
-            Hosted by <strong>{{ tournament.host.full_name }}</strong> • Listed
+            Hosted by <strong>{{ tournament.host.full_name }}</strong> | Listed
             on {{ tournament.created_at.strftime('%d %b %Y') }}
           </p>
+
+          <!-- HOST CONTROLS: Only visible to the event creator -->
+          {% if current_user.is_authenticated and current_user.id ==
+          tournament.host_id %}
+          <div class="d-flex gap-2 mt-3 mb-4">
+            <!-- Edit Button -->
+            <a
+              href="{{ url_for('main.edit_event', id=tournament.id) }}"
+              class="btn btn-outline-primary btn-sm fw-semibold"
+            >
+              <i class="bi bi-pencil me-1"></i> Edit Event
+            </a>
+
+            <!-- Cancel Event Form -->
+            {% if tournament.status != 'cancelled' %}
+            <form
+              action="{{ url_for('main.cancel_event', id=tournament.id) }}"
+              method="POST"
+              onsubmit="
+                return confirm(
+                  'Are you sure you want to cancel this event? This will stop all future bookings.',
+                );
+              "
+            >
+              <button
+                type="submit"
+                class="btn btn-outline-danger btn-sm fw-semibold"
+              >
+                <i class="bi bi-x-circle me-1"></i> Cancel Event
+              </button>
+            </form>
+            {% endif %}
+          </div>
+          {% endif %}
 
           <hr class="my-4" />
 

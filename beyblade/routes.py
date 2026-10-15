@@ -2,20 +2,19 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for
 from flask_login import login_required, current_user
 from sqlalchemy import or_
 from . import db
-from .models import Tournament, Comment
+from .models import Tournament, Comment, Booking
 from .forms import AISearchForm, TournamentForm
-from google import genai
+from sentence_transformers import SentenceTransformer, util
 from dotenv import load_dotenv
 import os
 import random
 from datetime import timedelta
-from .models import Tournament, Comment, Booking
 
 # Load the hidden variables from your .env file
 load_dotenv()
 
-# Set up the AI Client safely using the environment variable
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+# Load the local embedding model (downloads once and runs entirely on your machine)
+model = SentenceTransformer('all-MiniLM-L6-v2')
 
 bp = Blueprint('main', __name__)
 
@@ -133,62 +132,116 @@ def book_event(id):
     # Send them to their dashboard so they can see their new ticket
     return redirect(url_for('main.booking_history'))
 
-# --- NEW AI SEARCH ROUTE ---
+# --- TRUE SEMANTIC SEARCH ROUTE ---
 @bp.route('/search', methods=['GET', 'POST'])
 def ai_search():
     form = AISearchForm()
     results = []
     ai_explanation = ""
 
-    if request.method == 'POST':
-        print("--- FORM SUBMITTED ---")
-
     if form.validate_on_submit():
         user_text = form.search_query.data
         print(f"SUCCESS: Form passed! User searched for: {user_text}")
         
         try:
-            prompt = f"""
-            The user is searching for a Beyblade X tournament. 
-            User query: "{user_text}"
-            Extract 1 to 3 core search keywords (like location, style, or format). 
-            Return ONLY the keywords separated by spaces, nothing else.
-            """
+            # 1. Fetch all open tournaments
+            open_tournaments = Tournament.query.filter_by(status='open').all()
             
-            response = client.models.generate_content(
-                model='gemini-3.8-flash',
-                contents=prompt
-            )
+            if not open_tournaments:
+                flash("No open tournaments available to search right now.", "info")
+                return render_template('search.html', form=form, results=[], ai_explanation="")
+                
+            # 2. Build a "meaning" string for each tournament to compare against
+            tournament_texts = [
+                f"{t.title} {t.category} {t.venue} {t.description}" for t in open_tournaments
+            ]
             
-            keywords = response.text.strip().split()
-            print(f"SUCCESS: AI Extracted Keywords: {keywords}")
-            ai_explanation = f"AI understood your search as: {', '.join(keywords)}"
+            # 3. Generate mathematical embeddings locally (No external API needed!)
+            query_embedding = model.encode(user_text, convert_to_tensor=True)
+            corpus_embeddings = model.encode(tournament_texts, convert_to_tensor=True)
+            
+            # 4. Calculate similarity scores between the user query and all events
+            cosine_scores = util.cos_sim(query_embedding, corpus_embeddings)[0]
+            
+            # 5. Pair scores with their tournaments and sort them
+            scored_results = []
+            for i, score in enumerate(cosine_scores):
+                # Only include results with a reasonable similarity match
+                if score.item() > 0.15: 
+                    scored_results.append((score.item(), open_tournaments[i]))
+                    
+            # Sort by highest score descending
+            scored_results.sort(key=lambda x: x[0], reverse=True)
+            
+            # Extract just the tournament objects for the Jinja template
+            results = [match[1] for match in scored_results]
+            
+            ai_explanation = f"Semantic Search Active: Found {len(results)} matches based on the meaning of your query."
 
         except Exception as e:
-            print(f"API OVERLOADED (503). Using fallback search. Error: {str(e)}")
-            # Fallback: If AI fails, manually split the sentence so the site doesn't break
+            print(f"Embedding failed. Using fallback search. Error: {str(e)}")
             keywords = user_text.strip().split()
-            ai_explanation = f"AI servers busy. Using standard keyword fallback: {', '.join(keywords)}"
-            flash("AI is currently experiencing high demand. Used standard search instead.", "warning")
-
-        # --- REAL DATABASE SEARCH ---
-        # Start by looking only at open tournaments
-        query = Tournament.query.filter(Tournament.status == 'open')
-        
-        # Chain filters so the tournament must match every AI keyword extracted
-        for kw in keywords:
-            search_term = f"%{kw}%"
-            # The keyword can be found in the title, category, venue, OR description (case-insensitive)
-            query = query.filter(
-                or_(
-                    Tournament.title.ilike(search_term),
-                    Tournament.category.ilike(search_term),
-                    Tournament.venue.ilike(search_term),
-                    Tournament.description.ilike(search_term)
+            query = Tournament.query.filter(Tournament.status == 'open')
+            for kw in keywords:
+                search_term = f"%{kw}%"
+                query = query.filter(
+                    or_(
+                        Tournament.title.ilike(search_term),
+                        Tournament.category.ilike(search_term),
+                        Tournament.venue.ilike(search_term),
+                        Tournament.description.ilike(search_term)
+                    )
                 )
-            )
-            
-        # Execute the query and store the actual Tournament objects
-        results = query.all()
+            results = query.all()
+            ai_explanation = f"AI processing error. Using standard keyword fallback: {', '.join(keywords)}"
 
     return render_template('search.html', form=form, results=results, ai_explanation=ai_explanation)
+
+# --- EDIT EVENT ROUTE ---
+@bp.route('/edit-event/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_event(id):
+    tournament = Tournament.query.get_or_404(id)
+    
+    # Security check: Only the host can edit their own event
+    if tournament.host_id != current_user.id:
+        flash('You do not have permission to edit this event.', 'danger')
+        return redirect(url_for('main.event_details', id=tournament.id))
+        
+    # Populate the form with the existing database data
+    form = TournamentForm(obj=tournament)
+    
+    if form.validate_on_submit():
+        tournament.title = form.title.data
+        tournament.category = form.category.data
+        tournament.start_time = form.start_time.data
+        tournament.end_time = form.start_time.data + timedelta(hours=4)
+        tournament.venue = form.venue.data
+        tournament.image = form.image.data
+        tournament.description = form.description.data
+        tournament.capacity = form.capacity.data
+        tournament.price = form.price.data
+        
+        db.session.commit()
+        flash(f'Successfully updated {tournament.title}!', 'success')
+        return redirect(url_for('main.event_details', id=tournament.id))
+        
+    return render_template('edit-event.html', form=form, tournament=tournament)
+
+# --- CANCEL EVENT ROUTE ---
+@bp.route('/event/<int:id>/cancel', methods=['POST'])
+@login_required
+def cancel_event(id):
+    tournament = Tournament.query.get_or_404(id)
+    
+    # Security check: Only the host can cancel their own event
+    if tournament.host_id != current_user.id:
+        flash('You do not have permission to cancel this event.', 'danger')
+        return redirect(url_for('main.event_details', id=tournament.id))
+        
+    # We change the status rather than deleting it so user booking histories don't break
+    tournament.status = 'cancelled'
+    db.session.commit()
+    
+    flash(f'Event "{tournament.title}" has been cancelled.', 'warning')
+    return redirect(url_for('main.index'))
