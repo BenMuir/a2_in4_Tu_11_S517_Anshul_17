@@ -1,0 +1,51 @@
+/* X-Burst Custom Theme Styles */
+
+/* Hero Section with dark overlay for readable text */
+.hero-section {
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)),
+    url("../img/event-details-hero.jpg");
+  background-size: cover;
+  background-position: center;
+  padding: 120px 0;
+  color: white;
+}
+
+/* Event Card Hover Animations */
+.event-card {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.event-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Custom Status Badges */
+.badge-status-open {
+  background-color: #198754; /* Bootstrap Success Green */
+  color: white;
+}
+
+.badge-status-soldout {
+  background-color: #dc3545; /* Bootstrap Danger Red */
+  color: white;
+}
+
+.badge-status-inactive {
+  background-color: #6c757d; /* Bootstrap Secondary Grey */
+  color: white;
+}
+
+/* Make sure the main content stretches so the footer stays at the bottom */
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
+}
