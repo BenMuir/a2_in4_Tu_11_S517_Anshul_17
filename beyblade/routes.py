@@ -4,17 +4,16 @@ from sqlalchemy import or_
 from . import db
 from .models import Tournament, Comment, Booking
 from .forms import AISearchForm, TournamentForm
-from sentence_transformers import SentenceTransformer, util
+# REMOVED FOR DEPLOYMENT: from sentence_transformers import SentenceTransformer, util
 from dotenv import load_dotenv
 import os
 import random
 from datetime import timedelta
 
-# Load the hidden variables from your .env file
+# Load the hidden variables from the .env file
 load_dotenv()
 
-# Load the local embedding model (downloads once and runs entirely on your machine)
-model = SentenceTransformer('all-MiniLM-L6-v2')
+# REMOVED FOR DEPLOYMENT: model = SentenceTransformer('all-MiniLM-L6-v2')
 
 bp = Blueprint('main', __name__)
 
@@ -29,7 +28,7 @@ def index():
 def booking_history():
     return render_template('booking-history.html')
 
-# --- DYNAMIC EVENT DETAILS ROUTE ---
+# --- EVENT DETAILS ROUTE ---
 @bp.route('/event/<int:id>')
 def event_details(id):
     # Fetch the specific tournament by its ID, or return a 404 error if it doesn't exist
@@ -134,7 +133,7 @@ def book_event(id):
     # Send them to their dashboard so they can see their new ticket
     return redirect(url_for('main.booking_history'))
 
-# --- TRUE SEMANTIC SEARCH ROUTE ---
+# --- FALLBACK SEARCH ROUTE (LITE VERSION) ---
 @bp.route('/search', methods=['GET', 'POST'])
 def ai_search():
     form = AISearchForm()
@@ -146,42 +145,11 @@ def ai_search():
         print(f"SUCCESS: Form passed! User searched for: {user_text}")
         
         try:
-            # 1. Fetch all open tournaments
-            open_tournaments = Tournament.query.filter_by(status='open').all()
-            
-            if not open_tournaments:
-                flash("No open tournaments available to search right now.", "info")
-                return render_template('search.html', form=form, results=[], ai_explanation="")
-                
-            # 2. Build a "meaning" string for each tournament to compare against
-            tournament_texts = [
-                f"{t.title} {t.category} {t.venue} {t.description}" for t in open_tournaments
-            ]
-            
-            # 3. Generate mathematical embeddings locally (No external API needed!)
-            query_embedding = model.encode(user_text, convert_to_tensor=True)
-            corpus_embeddings = model.encode(tournament_texts, convert_to_tensor=True)
-            
-            # 4. Calculate similarity scores between the user query and all events
-            cosine_scores = util.cos_sim(query_embedding, corpus_embeddings)[0]
-            
-            # 5. Pair scores with their tournaments and sort them
-            scored_results = []
-            for i, score in enumerate(cosine_scores):
-                # Only include results with a reasonable similarity match
-                if score.item() > 0.15: 
-                    scored_results.append((score.item(), open_tournaments[i]))
-                    
-            # Sort by highest score descending
-            scored_results.sort(key=lambda x: x[0], reverse=True)
-            
-            # Extract just the tournament objects for the Jinja template
-            results = [match[1] for match in scored_results]
-            
-            ai_explanation = f"Semantic Search Active: Found {len(results)} matches based on the meaning of your query."
+            # FORCE FALLBACK FOR PYTHONANYWHERE DEPLOYMENT
+            raise Exception("AI Search disabled for cloud deployment. Forcing fallback.")
 
         except Exception as e:
-            print(f"Embedding failed. Using fallback search. Error: {str(e)}")
+            print(f"Embedding disabled. Using fallback search. Error: {str(e)}")
             keywords = user_text.strip().split()
             query = Tournament.query.filter(Tournament.status == 'open')
             for kw in keywords:
@@ -195,7 +163,7 @@ def ai_search():
                     )
                 )
             results = query.all()
-            ai_explanation = f"AI processing error. Using standard keyword fallback: {', '.join(keywords)}"
+            ai_explanation = f"Cloud deployment active. Using standard keyword match for: {', '.join(keywords)}"
 
     return render_template('search.html', form=form, results=results, ai_explanation=ai_explanation)
 

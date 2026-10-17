@@ -22,9 +22,8 @@ X-Burst{% endblock %} {% block content %}
               form.category(class="form-select") }}
             </div>
             <div class="col-md-6">
-              {{ form.start_time.label(class="form-label fw-semibold") }}
-              <!-- Ensure step="any" is set if your datetime expects exact minutes/seconds -->
-              {{ form.start_time(class="form-control", type="datetime-local") }}
+              {{ form.start_time.label(class="form-label fw-semibold") }} {{
+              form.start_time(class="form-control", type="datetime-local") }}
             </div>
           </div>
 
