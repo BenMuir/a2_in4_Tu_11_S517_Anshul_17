@@ -14,11 +14,7 @@ def register():
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
 
-<<<<<<< HEAD
-    form = RegisterForm()
-=======
     form = RegistrationForm()
->>>>>>> 7b996e1cb28df262014de3cb401ef0c0984b70ff
     if form.validate_on_submit():
         email = form.email.data.strip().lower()
 

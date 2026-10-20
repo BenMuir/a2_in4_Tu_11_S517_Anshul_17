@@ -9,7 +9,7 @@ endblock %} {% block content %}
         </div>
 
         <!-- The actual WTForm connected to Flask backend -->
-        <form method="POST" action="">
+        <form method="POST" action="" enctype="multipart/form-data">
           {{ form.hidden_tag() }}
 
           <div class="mb-3">
@@ -35,6 +35,33 @@ endblock %} {% block content %}
           <div class="mb-4">
             {{ form.venue.label(class="form-label fw-semibold") }} {{
             form.venue(class="form-control") }}
+          </div>
+
+
+          <!-- Banner Image: preset or upload -->
+          <div class="card bg-light border-0 mb-4 p-3">
+            <h5 class="fw-bold mb-3">
+              <i class="bi bi-image text-primary me-2"></i>Banner Image
+            </h5>
+
+            <div class="mb-3">
+              {{ form.image.label(class="form-label fw-semibold") }}
+              {{ form.image(class="form-select") }}
+            </div>
+
+            <div class="mb-3">
+              {{ form.banner_upload.label(class="form-label fw-semibold") }}
+              {{ form.banner_upload(class="form-control", accept="image/*", id="bannerUpload") }}
+              <div class="form-text">
+                JPG, PNG, GIF or WEBP, up to 5 MB. If you upload an image, it replaces the preset above.
+              </div>
+              {% for error in form.banner_upload.errors %}
+              <span class="text-danger small d-block">{{ error }}</span>
+              {% endfor %}
+            </div>
+
+            <!-- Preview of the chosen upload -->
+            <img id="bannerPreview" class="img-fluid rounded d-none" alt="Banner preview">
           </div>
 
           <!-- Acknowledgement of Country Section (MOVED INSIDE THE FORM) -->
@@ -114,6 +141,22 @@ endblock %} {% block content %}
     ackSelect.addEventListener("change", toggleCustomAck);
     toggleCustomAck();
   });
+
+    
+  
+  // Show a preview of image banner before submitting
+    const bannerUpload = document.getElementById("bannerUpload");
+    const bannerPreview = document.getElementById("bannerPreview");
+
+    bannerUpload.addEventListener("change", function () {
+      const file = this.files[0];
+      if (file) {
+        bannerPreview.src = URL.createObjectURL(file);
+        bannerPreview.classList.remove("d-none");
+      } else {
+        bannerPreview.classList.add("d-none");
+      }
+    });
 </script>
 
 {% endblock %}
