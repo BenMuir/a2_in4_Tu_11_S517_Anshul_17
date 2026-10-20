@@ -11,8 +11,8 @@ endblock %} {% block content %}
       </p>
       <div class="d-flex justify-content-center gap-2 flex-wrap">
         <a href="#events-section" class="btn btn-primary px-4 fw-semibold"
-          >Browse Events</a
-        >
+          >Browse Events</a>
+      
         <a
           href="{{ url_for('main.create_event') }}"
           class="btn btn-outline-light px-4"
@@ -197,7 +197,7 @@ endblock %} {% block content %}
         <h4 class="text-muted">No upcoming tournaments found.</h4>
         <p>
           Be the first to
-          <a href="{{ url_for('main.create_event') }}">host one!</a>
+          <a href="{{ url_for('main.create_event') }}">host one!</a> 
         </p>
       </div>
       {% endfor %}

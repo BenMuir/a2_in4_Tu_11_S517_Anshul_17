@@ -49,3 +49,18 @@ body {
 main {
   flex: 1;
 }
+
+
+/* Error CSS */
+.error-main {
+    display: flex;
+    flex: 1;
+  }
+
+.error-section {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 80px 0;
+  }
+
