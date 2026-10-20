@@ -1,13 +1,7 @@
-from flask import Flask, render_template
-<<<<<<< HEAD
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
+from os import makedirs
 
-db = SQLAlchemy()
-login_manager = LoginManager()
-=======
+from flask import Flask, flash, redirect, render_template, request
 from .extensions import db, login_manager
->>>>>>> 7b996e1cb28df262014de3cb401ef0c0984b70ff
 
 def create_app():
     app = Flask(__name__)
@@ -20,21 +14,7 @@ def create_app():
 
     db.init_app(app)
 
-<<<<<<< HEAD
-    # Flask-Login: redirect anonymous users to the login page for @login_required routes
     login_manager.init_app(app)
-    login_manager.login_view = 'auth.login'
-    login_manager.login_message = 'Please log in to access that page.'
-    login_manager.login_message_category = 'warning'
-
-    from .models import User
-
-    @login_manager.user_loader
-    def load_user(user_id):
-        return db.session.get(User, int(user_id))
-=======
-    login_manager.init_app(app)
->>>>>>> 7b996e1cb28df262014de3cb401ef0c0984b70ff
 
     # Import and register the routing blueprints
     from .routes import bp
@@ -55,5 +35,16 @@ def create_app():
     @app.errorhandler(500)
     def internal_server_error(e):
         return render_template('500.html'), 500
+
+    # Configuring photo uploads for the application
+    app.config['UPLOAD_FOLDER'] = 'static/uploads'
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+    makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+    # Error handling for large file uploads
+    @app.errorhandler(413)
+    def file_too_large(e):
+        flash("That image is too large. The maximum size is 5 MB.", "danger")
+        return redirect(request.referrer or "/") 
 
     return app

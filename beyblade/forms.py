@@ -3,6 +3,7 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField, Email
 from wtforms.validators import DataRequired, InputRequired, Length, Email, EqualTo, Regexp, NumberRange, ValidationError
 from wtforms.fields import DateTimeLocalField
 from datetime import date
+from flask_wtf.file import FileField, FileAllowed, FileSize
 
 # --- AI SEARCH FORM ---
 class AISearchForm(FlaskForm):
@@ -18,11 +19,7 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Log In')
 
 # Registration form
-<<<<<<< HEAD
-class RegisterForm(FlaskForm):
-=======
 class RegistrationForm(FlaskForm):
->>>>>>> 7b996e1cb28df262014de3cb401ef0c0984b70ff
     first_name = StringField('First Name', validators=[InputRequired(), Length(max=50)])
     surname = StringField('Surname', validators=[InputRequired(), Length(max=50)])
     email = EmailField('Email Address', validators=[
@@ -61,6 +58,11 @@ class TournamentForm(FlaskForm):
         ('event-freeplay.jpg', 'Preset: Casual Free-Play')
     ], validators=[DataRequired()])
 
+    banner_upload = FileField('Or upload your own banner (optional)', validators=[
+        FileAllowed(['jpg', 'jpeg', 'png', 'gif', 'webp'], 'Images only (JPG, PNG, GIF or WEBP).'),
+        FileSize(max_size=5 * 1024 * 1024, message='Image must be 5 MB or smaller.')
+    ])
+
     ack_statement = SelectField('Acknowledgement of Country', choices=[
         ('none', 'No Acknowledgement'),
         ('generic', 'Use Generic Acknowledgement (Recommended)'),
@@ -78,8 +80,4 @@ class TournamentForm(FlaskForm):
 
     def validate_start_time(self, field): 
         if field.data and field.data.date() < date.today():
-<<<<<<< HEAD
             raise ValidationError("The tournament date can't be in the past.")
-=======
-            raise ValidationError("The tournament date can't be in the past.")
->>>>>>> 7b996e1cb28df262014de3cb401ef0c0984b70ff
