@@ -13,7 +13,7 @@ endblock %} {% block content %}
           {{ form.hidden_tag() }}
 
           <div class="mb-3">
-            {{ form.title.label(class="form-label fw-semibold") }} {{form.title(class="form-control", placeholder="e.g., Gold Coast Spring 1v1 Swiss Open") }}
+            {{ form.title.label(class="form-label fw-semibold") }} {{form.title(class="form-control", placeholder="e.g. Gold Coast Spring 1v1 Swiss Open") }}
           </div>
 
           <div class="row g-3 mb-3">
@@ -58,9 +58,12 @@ endblock %} {% block content %}
               {% endfor %}
             </div>
 
-            <!-- Preview of the chosen upload -->
-            <img id="bannerPreview" class="img-fluid rounded d-none" alt="Banner preview">
-          </div>
+            <!-- Preview: shows the selected preset, or the uploaded image if there is one -->
+            <img id="bannerPreview"
+                 class="img-fluid rounded w-100 object-fit-cover"
+                 style="max-height: 260px;"
+                 data-base="{{ url_for('static', filename='img/') }}"
+                 alt="Banner preview">
 
           <!-- Acknowledgement of Country Section (MOVED INSIDE THE FORM) -->
           <div class="card bg-light border-0 mb-4 p-3">
@@ -139,22 +142,27 @@ endblock %} {% block content %}
     ackSelect.addEventListener("change", toggleCustomAck);
     toggleCustomAck();
   });
-
-    
   
-  // Show a preview of image banner before submitting
+    // --- Banner preview ---
+    const presetSelect = document.getElementById("image");
     const bannerUpload = document.getElementById("bannerUpload");
     const bannerPreview = document.getElementById("bannerPreview");
+    const imgBase = bannerPreview.dataset.base;
 
-    bannerUpload.addEventListener("change", function () {
-      const file = this.files[0];
+    function updateBannerPreview() {
+      const file = bannerUpload.files[0];
       if (file) {
+        // An uploaded image overrides the preset
         bannerPreview.src = URL.createObjectURL(file);
-        bannerPreview.classList.remove("d-none");
       } else {
-        bannerPreview.classList.add("d-none");
+        // Otherwise show the selected preset
+        bannerPreview.src = imgBase + presetSelect.value;
       }
-    });
+    }
+
+    presetSelect.addEventListener("change", updateBannerPreview);
+    bannerUpload.addEventListener("change", updateBannerPreview);
+    updateBannerPreview(); // show the default preset on page load
 </script>
 
 {% endblock %}
