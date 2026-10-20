@@ -157,6 +157,10 @@ Event Details{% endblock %} {% block content %}
         </h4>
 
         <!-- Connect the form to our backend route -->
+<<<<<<< HEAD
+=======
+        {% if current_user.is_authenticated %}
+>>>>>>> 7b996e1cb28df262014de3cb401ef0c0984b70ff
         <form
           method="POST"
           action="{{ url_for('main.add_comment', id=tournament.id) }}"
@@ -179,6 +183,16 @@ Event Details{% endblock %} {% block content %}
             Post Comment
           </button>
         </form>
+<<<<<<< HEAD
+=======
+        {% else %}
+        <!-- Comments require an account; send the user back here after logging in -->
+        <p class="text-muted small mb-4">
+          <a href="{{ url_for('auth.login', next=request.path) }}">Log in</a>
+          to join the discussion.
+        </p>
+        {% endif %}
+>>>>>>> 7b996e1cb28df262014de3cb401ef0c0984b70ff
 
         <hr />
 
@@ -247,6 +261,18 @@ Event Details{% endblock %} {% block content %}
 
         <!-- Booking Selection Form -->
         {% if tournament.status == 'open' and tournament.capacity > 0 %}
+<<<<<<< HEAD
+=======
+        {% if not current_user.is_authenticated %}
+        <!-- Booking requires an account; send the user back here after logging in -->
+        <a
+          href="{{ url_for('auth.login', next=request.path) }}"
+          class="btn btn-primary w-100 py-2 fw-semibold mb-3"
+        >
+          <i class="bi bi-box-arrow-in-right me-1"></i> Log In to Book a Slot
+        </a>
+        {% else %}
+>>>>>>> 7b996e1cb28df262014de3cb401ef0c0984b70ff
         <form
           method="POST"
           action="{{ url_for('main.book_event', id=tournament.id) }}"
@@ -273,6 +299,10 @@ Event Details{% endblock %} {% block content %}
             <i class="bi bi-cart-check me-1"></i> Confirm & Book Slot
           </button>
         </form>
+<<<<<<< HEAD
+=======
+        {% endif %}
+>>>>>>> 7b996e1cb28df262014de3cb401ef0c0984b70ff
         {% else %}
         <!-- Lock the form if the event is full or inactive -->
         <div

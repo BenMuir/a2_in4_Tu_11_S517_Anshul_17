@@ -18,7 +18,11 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Log In')
 
 # Registration form
+<<<<<<< HEAD
 class RegisterForm(FlaskForm):
+=======
+class RegistrationForm(FlaskForm):
+>>>>>>> 7b996e1cb28df262014de3cb401ef0c0984b70ff
     first_name = StringField('First Name', validators=[InputRequired(), Length(max=50)])
     surname = StringField('Surname', validators=[InputRequired(), Length(max=50)])
     email = EmailField('Email Address', validators=[
@@ -74,4 +78,8 @@ class TournamentForm(FlaskForm):
 
     def validate_start_time(self, field): 
         if field.data and field.data.date() < date.today():
+<<<<<<< HEAD
             raise ValidationError("The tournament date can't be in the past.")
+=======
+            raise ValidationError("The tournament date can't be in the past.")
+>>>>>>> 7b996e1cb28df262014de3cb401ef0c0984b70ff
