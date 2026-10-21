@@ -1,22 +1,7 @@
-<<<<<<< HEAD
-# Python environment and cache
-venv/
-env/
-__pycache__/
-*.pyc
-
-# IDEs and OS files
-.vscode/
-.idea/
-.DS_Store
-.env
-# Note: The SQLite database (.sqlite) is deliberately NOT ignored here 
-=======
 # Python environment and cache
 venv/
 .venv/
 env/
-.env/
 __pycache__/
 *.pyc
 
@@ -30,7 +15,4 @@ instance/
 .DS_Store
 
 # Note: The SQLite database (.sqlite) is deliberately NOT ignored here 
-# Local SQLite database - created automatically by create_app() on first run.
-instance/
-*.sqlite
->>>>>>> origin/main
+# so the marker can test the application with existing data.

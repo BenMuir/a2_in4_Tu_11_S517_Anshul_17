@@ -209,9 +209,6 @@ def ai_search():
     results = []
     ai_explanation = ""
 
-    if request.method == 'POST':
-        print("--- FORM SUBMITTED ---")
-
     if form.validate_on_submit():
         user_text = form.search_query.data
         print(f"SUCCESS: Form passed! User searched for: {user_text}")
@@ -235,28 +232,19 @@ def ai_search():
             print(f"API ERROR OR MISSING KEY. Using fallback search. Error: {str(e)}")
             # Fallback: If AI fails, manually split the sentence so the site doesn't break
             keywords = user_text.strip().split()
-            ai_explanation = f"AI servers busy. Using standard keyword fallback: {', '.join(keywords)}"
-            flash("AI is currently experiencing high demand. Used standard search instead.", "warning")
-
-        # --- REAL DATABASE SEARCH ---
-        # Start by looking only at open tournaments
-        query = Tournament.query.filter(Tournament.status == 'open')
-        
-        # Chain filters so the tournament must match every AI keyword extracted
-        for kw in keywords:
-            search_term = f"%{kw}%"
-            # The keyword can be found in the title, category, venue, OR description (case-insensitive)
-            query = query.filter(
-                or_(
-                    Tournament.title.ilike(search_term),
-                    Tournament.category.ilike(search_term),
-                    Tournament.venue.ilike(search_term),
-                    Tournament.description.ilike(search_term)
+            query = Tournament.query.filter(Tournament.status == 'open')
+            for kw in keywords:
+                search_term = f"%{kw}%"
+                query = query.filter(
+                    or_(
+                        Tournament.title.ilike(search_term),
+                        Tournament.category.ilike(search_term),
+                        Tournament.venue.ilike(search_term),
+                        Tournament.description.ilike(search_term)
+                    )
                 )
-            )
-            
-        # Execute the query and store the actual Tournament objects
-        results = query.all()
+            results = query.all()
+            ai_explanation = f"AI processing error. Using standard keyword fallback: {', '.join(keywords)}"
 
     return render_template('search.html', form=form, results=results, ai_explanation=ai_explanation)
 
