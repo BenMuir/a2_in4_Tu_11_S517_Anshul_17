@@ -19,7 +19,7 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Log In')
 
 # Registration form
-class RegisterForm(FlaskForm):
+class RegistrationForm(FlaskForm):
     first_name = StringField('First Name', validators=[InputRequired(), Length(max=50)])
     surname = StringField('Surname', validators=[InputRequired(), Length(max=50)])
     email = EmailField('Email Address', validators=[
@@ -61,6 +61,14 @@ class TournamentForm(FlaskForm):
     custom_image = FileField('Or Upload a Custom Image', validators=[
         FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')
     ])
+
+    ack_statement = SelectField('Acknowledgement of Country', choices=[
+        ('none', 'No Acknowledgement'),
+        ('generic', 'Use Generic Acknowledgement (Recommended)'),
+        ('enhanced', 'Write a Custom/Enhanced Acknowledgement')
+    ], default='none')
+    
+    custom_ack_text = TextAreaField('Custom Acknowledgement', render_kw={"placeholder": "E.g., We acknowledge the Turrbal and Yuggera peoples as the First Nations owners of the lands where this tournament takes place..."})
         
     description = TextAreaField('Description', validators=[DataRequired()])
     capacity = IntegerField('Capacity', default=32, validators=[DataRequired(), NumberRange(min=1)])
