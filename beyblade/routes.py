@@ -5,7 +5,6 @@ from sqlalchemy import or_
 from . import db
 from .models import Tournament, Comment, Booking
 from .forms import AISearchForm, TournamentForm
-from huggingface_hub import InferenceClient
 from dotenv import load_dotenv
 import os
 import random
@@ -14,10 +13,12 @@ from datetime import timedelta
 # Load the hidden variables from your .env file
 load_dotenv()
 
-# Set up the Hugging Face Client safely using the environment variable
-client = InferenceClient(api_key=os.getenv("HUGGINGFACE_API_KEY"))
-# TEMPORARY TEST
-client = InferenceClient(api_key="hf_your_actual_token_string_here")
+# Safely set up the Hugging Face Client (optional for production server without package installed)
+try:
+    from huggingface_hub import InferenceClient
+    client = InferenceClient(api_key=os.getenv("HUGGINGFACE_API_KEY"))
+except ImportError:
+    client = None
 
 bp = Blueprint('main', __name__)
 
@@ -89,7 +90,9 @@ def create_event():
             description=form.description.data,
             capacity=form.capacity.data,
             price=form.price.data,
-            host_id=current_user.id  # Automatically links to the logged-in user
+            host_id=current_user.id,  # Automatically links to the logged-in user
+            ack_statement=form.ack_statement.data,
+            custom_ack_text=form.custom_ack_text.data,
         )
         
         db.session.add(new_tournament)
@@ -214,6 +217,9 @@ def ai_search():
         print(f"SUCCESS: Form passed! User searched for: {user_text}")
         
         try:
+            if client is None:
+                raise Exception("Hugging Face client is not initialized.")
+
             # Using flan-t5-large via standard text generation bypasses the provider routing errors
             prompt = f"Extract 1 to 3 core search keywords (like location, style, or format) from this query. Return ONLY the keywords separated by spaces.\n\nQuery: '{user_text}'\nKeywords:"
             
