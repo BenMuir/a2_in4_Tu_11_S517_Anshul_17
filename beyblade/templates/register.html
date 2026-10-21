@@ -12,7 +12,7 @@
           <p class="text-muted mb-0">Create an account to enter brackets and host your own tournaments.</p>
         </div>
 
-        <form method="POST" novalidate>
+        <form method="POST" enctype="multipart/form-data" novalidate>
           {{ form.hidden_tag() }}
           <div class="row">
             <div class="col-sm-6">{{ render_field(form.first_name, 'First name', 'given-name') }}</div>
@@ -23,6 +23,32 @@
             <div class="col-sm-6">{{ render_field(form.contact_number, 'e.g. 0412 345 678', 'tel') }}</div>
           </div>
           {{ render_field(form.street_address, 'e.g. 2 George St, Brisbane QLD 4000', 'street-address') }}
+          
+          
+          <!-- Profile photo with live preview -->
+          <div class="mb-3">
+            {{ form.profile_photo.label(class="form-label fw-semibold") }}
+            <div class="d-flex align-items-center gap-3">
+              <div class="flex-shrink-0 d-flex align-items-center justify-content-center"
+                   style="width: 64px; height: 64px;">
+                <!-- Preview (hidden until a photo is chosen) -->
+                <img id="avatarPreview" class="rounded-circle object-fit-cover border d-none"
+                     width="64" height="64" alt="Profile photo preview">
+                <!-- Default person icon -->
+                <i id="avatarPlaceholder" class="bi bi-person-circle text-secondary"
+                   style="font-size: 64px; line-height: 1;"></i>
+              </div>
+              <div class="flex-grow-1">
+                {{ form.profile_photo(class="form-control" + (" is-invalid" if form.profile_photo.errors else ""),
+                                      accept="image/*", id="avatarUpload") }}
+                <div class="form-text">Please upload only JPG, PNG, GIF or WEBP</div>
+                {% for error in form.profile_photo.errors %}
+                <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+
           <div class="row">
             <div class="col-sm-6">
               {{ render_field(form.password, 'At least 8 characters', 'new-password') }}
@@ -40,6 +66,26 @@
         </p>
       </div>
     </div>
-  </div>
+  </div>  
 </main>
+
+<script>
+  // Swap the person icon for a preview of the chosen photo
+  const avatarUpload = document.getElementById("avatarUpload");
+  const avatarPreview = document.getElementById("avatarPreview");
+  const avatarPlaceholder = document.getElementById("avatarPlaceholder");
+
+  avatarUpload.addEventListener("change", function () {
+    const file = this.files[0];
+    if (file && file.type.startsWith("image/")) {
+      avatarPreview.src = URL.createObjectURL(file);
+      avatarPreview.classList.remove("d-none");
+      avatarPlaceholder.classList.add("d-none");
+    } else {
+      avatarPreview.classList.add("d-none");
+      avatarPlaceholder.classList.remove("d-none");
+    }
+  });
+</script>
+
 {% endblock %}

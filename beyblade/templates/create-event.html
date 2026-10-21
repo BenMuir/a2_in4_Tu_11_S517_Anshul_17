@@ -64,6 +64,7 @@ endblock %} {% block content %}
                  style="max-height: 260px;"
                  data-base="{{ url_for('static', filename='img/') }}"
                  alt="Banner preview">
+            </div>
 
           <!-- Acknowledgement of Country Section (MOVED INSIDE THE FORM) -->
           <div class="card bg-light border-0 mb-4 p-3">
@@ -85,12 +86,7 @@ endblock %} {% block content %}
               {{ form.custom_ack_text(class="form-control", rows="3") }}
             </div>
           </div>
-
-          <div class="mb-3">
-            {{ form.image.label(class="form-label fw-semibold") }} {{
-            form.image(class="form-select") }}
-          </div>
-
+          
           <div class="mb-4">
             {{ form.description.label(class="form-label fw-semibold") }} {{
             form.description(class="form-control", rows="4") }}

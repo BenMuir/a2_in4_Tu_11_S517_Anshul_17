@@ -64,10 +64,18 @@
           </ul>
           <div class="d-flex align-items-center gap-2">
             {% if current_user.is_authenticated %}
-            <span class="text-light small d-none d-md-inline me-2"
-              ><i class="bi bi-person-circle me-1"></i> {{
-              current_user.full_name }}</span
-            >
+
+            <span class="text-light small d-flex align-items-center me-2">
+              {% if current_user.profile_image %}
+              <img src="{{ url_for('static', filename='img/' + current_user.profile_image) }}"
+                   class="rounded-circle object-fit-cover border border-secondary me-2"
+                   width="32" height="32" alt="Profile photo">
+              {% else %}
+              <i class="bi bi-person-circle fs-5 me-2"></i>
+              {% endif %}
+              <span class="d-none d-md-inline">{{ current_user.full_name }}</span>
+              
+            </span>
             <a
               href="{{ url_for('main.create_event') }}"
               class="btn btn-warning btn-sm fw-semibold"

@@ -2,6 +2,8 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from beyblade.routes import save_image
+
 from . import db
 from .models import User
 from .forms import LoginForm, RegistrationForm
@@ -28,6 +30,15 @@ def register():
                         password_hash=generate_password_hash(form.password.data),
                         mobile=form.contact_number.data.strip(),
                         street_address=form.street_address.data.strip())
+
+            # Handle optional profile photo upload
+            if form.profile_photo.data:
+                try:
+                    user.profile_image = save_image(form.profile_photo.data, "avatars")
+                except ValueError as e:
+                    flash(str(e), 'danger')
+                    return render_template('register.html', form=form)
+                
             db.session.add(user)
             db.session.commit()
             # Log the new user straight in, then redirect (PRG pattern)

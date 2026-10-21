@@ -37,6 +37,11 @@ class RegistrationForm(FlaskForm):
         InputRequired(),
         EqualTo('password', message='Passwords must match')])
     submit = SubmitField('Create Account')
+    
+    profile_photo = FileField('Profile Photo (optional)', validators=[
+    FileAllowed(['jpg', 'jpeg', 'png', 'gif', 'webp'], 'Images only (JPG, PNG, GIF or WEBP).'),
+    FileSize(max_size=5 * 1024 * 1024, message='Image must be 5 MB or smaller.')
+    ])
 
 # --- TOURNAMENT FORM ---
 class TournamentForm(FlaskForm):
@@ -81,3 +86,4 @@ class TournamentForm(FlaskForm):
     def validate_start_time(self, field): 
         if field.data and field.data.date() < date.today():
             raise ValidationError("The tournament date can't be in the past.")
+
