@@ -8,8 +8,8 @@ endblock %} {% block content %}
           <h2 class="fw-bold mb-1">Create a Beyblade X Tournament</h2>
         </div>
 
-        <!-- The actual WTForm connected to Flask backend -->
-        <form method="POST" action="">
+        <!-- enctype="multipart/form-data" is REQUIRED for image uploads -->
+        <form method="POST" action="" enctype="multipart/form-data">
           {{ form.hidden_tag() }}
 
           <div class="mb-3">
@@ -37,9 +37,20 @@ endblock %} {% block content %}
             form.venue(class="form-control") }}
           </div>
 
-          <div class="mb-3">
-            {{ form.image.label(class="form-label fw-semibold") }} {{
-            form.image(class="form-select") }}
+          <!-- NEW: Dual Image Selection -->
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              {{ form.default_image.label(class="form-label fw-semibold") }} {{
+              form.default_image(class="form-select") }}
+            </div>
+            <div class="col-md-6">
+              {{ form.custom_image.label(class="form-label fw-semibold") }} {{
+              form.custom_image(class="form-control", type="file",
+              accept="image/*") }}
+              <div class="form-text text-muted small">
+                Overrides default selection.
+              </div>
+            </div>
           </div>
 
           <div class="mb-4">
