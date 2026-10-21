@@ -167,9 +167,14 @@ endblock %} {% block content %}
                 tournament.venue }}
               </li>
               <li>
-                <i class="bi bi-ticket-perforated me-2 text-success"></i>
-                <!-- We will add dynamic booking count later, showing capacity for now -->
-                <strong>{{ tournament.capacity }}</strong> Slots Total
+                <i
+                  class="bi bi-ticket-perforated me-2 {% if tournament.capacity == 0 %}text-danger{% else %}text-success{% endif %}"
+                ></i>
+                {% if tournament.capacity == 0 %}
+                <strong class="text-danger">Sold Out</strong>
+                {% else %}
+                <strong>{{ tournament.capacity }}</strong> Slots Available {%
+                endif %}
               </li>
             </ul>
 
@@ -181,9 +186,10 @@ endblock %} {% block content %}
                 "%.2f"|format(tournament.price) }}{% endif %}
               </span>
 
+              <!-- Button turns grey if sold out -->
               <a
                 href="{{ url_for('main.event_details', id=tournament.id) }}"
-                class="btn btn-primary btn-sm px-3 fw-semibold"
+                class="btn {% if tournament.status == 'sold_out' %}btn-secondary{% else %}btn-primary{% endif %} btn-sm px-3 fw-semibold"
                 >View Details</a
               >
             </div>

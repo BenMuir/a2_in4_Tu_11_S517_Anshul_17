@@ -1,5 +1,7 @@
-{% extends 'base.html' %} {% block title %}Host a Tournament | X-Burst{%
-endblock %} {% block content %}
+{% extends 'base.html' %} 
+{% block title %}Host a Tournament | X-Burst{% endblock %} 
+
+{% block content %}
 <main class="container py-4">
   <div class="row justify-content-center">
     <div class="col-lg-9">
@@ -8,47 +10,44 @@ endblock %} {% block content %}
           <h2 class="fw-bold mb-1">Create a Beyblade X Tournament</h2>
         </div>
 
-        <!-- The actual WTForm connected to Flask backend -->
-        <form method="POST" action="">
+        <!-- enctype="multipart/form-data" is REQUIRED for image uploads -->
+        <form method="POST" action="" enctype="multipart/form-data">
           {{ form.hidden_tag() }}
 
           <div class="mb-3">
-            {{ form.title.label(class="form-label fw-semibold") }} {{
-            form.title(class="form-control", placeholder="e.g., Gold Coast
-            Spring 1v1 Swiss Open") }}
+            {{ form.title.label(class="form-label fw-semibold") }} 
+            {{ form.title(class="form-control", placeholder="e.g., Gold Coast Spring 1v1 Swiss Open") }}
           </div>
 
           <div class="row g-3 mb-3">
             <div class="col-md-6">
-              {{ form.category.label(class="form-label fw-semibold") }} {{
-              form.category(class="form-select") }}
+              {{ form.category.label(class="form-label fw-semibold") }} 
+              {{ form.category(class="form-select") }}
             </div>
             <div class="col-md-6">
-              {{ form.start_time.label(class="form-label fw-semibold") }} {{
-              form.start_time(class="form-control") }} {% for error in
-              form.start_time.errors %}
+              {{ form.start_time.label(class="form-label fw-semibold") }} 
+              {{ form.start_time(class="form-control") }} 
+              {% for error in form.start_time.errors %}
               <span class="text-danger small">{{ error }}</span>
               {% endfor %}
             </div>
           </div>
 
           <div class="mb-4">
-            {{ form.venue.label(class="form-label fw-semibold") }} {{
-            form.venue(class="form-control") }}
+            {{ form.venue.label(class="form-label fw-semibold") }} 
+            {{ form.venue(class="form-control") }}
           </div>
 
-          <!-- Acknowledgement of Country Section (MOVED INSIDE THE FORM) -->
+          <!-- Acknowledgement of Country Section -->
           <div class="card bg-light border-0 mb-4 p-3">
             <h5 class="fw-bold mb-3">
-              <i class="bi bi-geo-alt-fill text-warning me-2"></i
-              >Acknowledgement of Country
+              <i class="bi bi-geo-alt-fill text-warning me-2"></i>Acknowledgement of Country
             </h5>
             <div class="mb-3">
-              {{ form.ack_statement.label(class="form-label fw-semibold") }} {{
-              form.ack_statement(class="form-select", id="ackSelect") }}
+              {{ form.ack_statement.label(class="form-label fw-semibold") }} 
+              {{ form.ack_statement(class="form-select", id="ackSelect") }}
               <div class="form-text">
-                Adding an Acknowledgement of Country pays respect to the
-                Traditional Custodians of the land where your event is held.
+                Adding an Acknowledgement of Country pays respect to the Traditional Custodians of the land where your event is held.
               </div>
             </div>
 
@@ -58,20 +57,30 @@ endblock %} {% block content %}
             </div>
           </div>
 
-          <div class="mb-3">
-            {{ form.image.label(class="form-label fw-semibold") }} {{
-            form.image(class="form-select") }}
+          <!-- NEW: Dual Image Selection -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              {{ form.default_image.label(class="form-label fw-semibold") }} 
+              {{ form.default_image(class="form-select") }}
+            </div>
+            <div class="col-md-6">
+              {{ form.custom_image.label(class="form-label fw-semibold") }} 
+              {{ form.custom_image(class="form-control", type="file", accept="image/*") }}
+              <div class="form-text text-muted small">
+                Overrides default selection.
+              </div>
+            </div>
           </div>
 
           <div class="mb-4">
-            {{ form.description.label(class="form-label fw-semibold") }} {{
-            form.description(class="form-control", rows="4") }}
+            {{ form.description.label(class="form-label fw-semibold") }} 
+            {{ form.description(class="form-control", rows="4") }}
           </div>
 
           <div class="row g-3 mb-4">
             <div class="col-md-6">
-              {{ form.capacity.label(class="form-label fw-semibold") }} {{
-              form.capacity(class="form-control") }}
+              {{ form.capacity.label(class="form-label fw-semibold") }} 
+              {{ form.capacity(class="form-control") }}
             </div>
             <div class="col-md-6">
               {{ form.price.label(class="form-label fw-semibold") }}
@@ -83,11 +92,7 @@ endblock %} {% block content %}
           </div>
 
           <div class="d-flex justify-content-end gap-2 pt-3 border-top">
-            <a
-              href="{{ url_for('main.index') }}"
-              class="btn btn-outline-secondary px-4"
-              >Cancel</a
-            >
+            <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary px-4">Cancel</a>
             {{ form.submit(class="btn btn-primary px-4 fw-semibold") }}
           </div>
         </form>
@@ -111,9 +116,10 @@ endblock %} {% block content %}
     }
 
     // Run on page load and when the dropdown changes
-    ackSelect.addEventListener("change", toggleCustomAck);
-    toggleCustomAck();
+    if(ackSelect) {
+        ackSelect.addEventListener("change", toggleCustomAck);
+        toggleCustomAck();
+    }
   });
 </script>
-
 {% endblock %}

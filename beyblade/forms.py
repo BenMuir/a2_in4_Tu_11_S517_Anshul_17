@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, EmailField, TelField, SelectField, TextAreaField, IntegerField, DecimalField
 from wtforms.validators import DataRequired, InputRequired, Length, Email, EqualTo, Regexp, NumberRange, ValidationError
 from wtforms.fields import DateTimeLocalField
@@ -51,11 +52,15 @@ class TournamentForm(FlaskForm):
     start_time = DateTimeLocalField('Date & Start Time', format='%Y-%m-%dT%H:%M', validators=[DataRequired()])
     venue = StringField('Venue', validators=[DataRequired(), Length(max=200)])
     
-    image = SelectField('Banner Image', choices=[
+    default_image = SelectField('Default Event Image', choices=[
         ('event-deck3v3.jpg', 'Preset: 3v3 Team Stadium Setup'),
         ('event-swiss.jpg', 'Preset: 1v1 Swiss'),
         ('event-freeplay.jpg', 'Preset: Casual Free-Play')
-    ], validators=[DataRequired()])
+    ], default='event-deck3v3.jpg')
+    
+    custom_image = FileField('Or Upload a Custom Image', validators=[
+        FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')
+    ])
 
     ack_statement = SelectField('Acknowledgement of Country', choices=[
         ('none', 'No Acknowledgement'),
@@ -64,7 +69,6 @@ class TournamentForm(FlaskForm):
     ], default='none')
     
     custom_ack_text = TextAreaField('Custom Acknowledgement', render_kw={"placeholder": "E.g., We acknowledge the Turrbal and Yuggera peoples as the First Nations owners of the lands where this tournament takes place..."})
-
         
     description = TextAreaField('Description', validators=[DataRequired()])
     capacity = IntegerField('Capacity', default=32, validators=[DataRequired(), NumberRange(min=1)])
