@@ -1,18 +1,21 @@
+import os
 from flask import Flask, render_template
-from .extensions import db, login_manager
+from .extensions import db, login_manager, bootstrap
 
 def create_app():
     app = Flask(__name__)
 
-    # Secret key for WTForms and Session management
-    app.config['SECRET_KEY'] = 'x-burst-dev-secret-key'
+    # Secret key for WTForms and Session management.
+    # On the live server, set a SECRET_KEY environment variable instead of using the dev key.
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'x-burst-dev-secret-key')
 
-    # SQLite database configuration for Eric's models
+    # SQLite database stored at instance/beyblade.sqlite
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///beyblade.sqlite'
 
     db.init_app(app)
 
     login_manager.init_app(app)
+    bootstrap.init_app(app)
 
     # Import and register the routing blueprints
     from .routes import bp

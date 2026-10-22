@@ -5,13 +5,9 @@ from sqlalchemy import or_
 from . import db
 from .models import Tournament, Comment, Booking
 from .forms import AISearchForm, TournamentForm
-from dotenv import load_dotenv
 import os
 import random
-from datetime import timedelta
-
-# Load the hidden variables from your .env file
-load_dotenv()
+from datetime import datetime, timedelta
 
 # Semantic search needs sentence-transformers. If it isn't installed (e.g. on the
 # deployment server), the search page falls back to keyword search instead.
@@ -31,7 +27,16 @@ def update_embedding(tournament):
         semantic_search.embed_tournament(tournament)
     except Exception as e:
         # Saving the event matters more than its embedding; search creates it later if missing
-        print(f"Could not create search embedding: {e}")
+        current_app.logger.warning(f"Could not create search embedding: {e}")
+
+
+def mark_past_events_inactive():
+    # Events whose date has passed become Inactive (cancelled events keep their status)
+    Tournament.query.filter(
+        Tournament.status.in_(['open', 'sold_out']),
+        Tournament.start_time < datetime.now()
+    ).update({'status': 'inactive'}, synchronize_session=False)
+    db.session.commit()
 
 CATEGORIES = [
     ('deck3v3', '3v3 Deck'),
@@ -39,6 +44,13 @@ CATEGORIES = [
     ('limited', 'Limited Format'),
     ('freeplay', 'Casual Free-Play'),
 ]
+
+@bp.before_app_request
+def refresh_event_statuses():
+    # Keep event statuses current before any page reads them
+    if request.endpoint and request.endpoint != 'static':
+        mark_past_events_inactive()
+
 
 @bp.route('/')
 def index():
@@ -74,9 +86,9 @@ def event_details(id):
 def add_comment(id):
     tournament = Tournament.query.get_or_404(id)
     
-    # Grab the text from the standard HTML form
-    body = request.form.get('body')
-    
+    # Grab the text from the standard HTML form, ignoring comments that are only spaces
+    body = request.form.get('body', '').strip()
+
     if body:
         new_comment = Comment(
             body=body,
@@ -138,9 +150,20 @@ def create_event():
 def book_event(id):
     tournament = Tournament.query.get_or_404(id)
     
-    # Grab the quantity the user selected from the dropdown
-    quantity = int(request.form.get('quantity', 1))
-    
+    # Only open events can be booked (not sold out, cancelled or already finished)
+    if tournament.status != 'open':
+        flash('This event is no longer taking bookings.', 'danger')
+        return redirect(url_for('main.event_details', id=tournament.id))
+
+    # Grab the quantity the user selected from the dropdown (1 to 3 slots per booking)
+    try:
+        quantity = int(request.form.get('quantity', 1))
+    except ValueError:
+        quantity = 0
+    if not 1 <= quantity <= 3:
+        flash('Please choose between 1 and 3 player slots.', 'danger')
+        return redirect(url_for('main.event_details', id=tournament.id))
+
     # Security check: Does the event have enough capacity?
     if tournament.capacity < quantity:
         flash('Sorry, there are not enough slots left for this event.', 'danger')
@@ -149,8 +172,10 @@ def book_event(id):
     # Calculate total price
     total_paid = quantity * tournament.price
     
-    # Generate a random 5-digit order reference (e.g., XB-84920)
+    # Generate a random 5-digit order reference (e.g., XB-84920), retrying if it's already taken
     order_ref = f"XB-{random.randint(10000, 99999)}"
+    while Booking.query.filter_by(order_ref=order_ref).first():
+        order_ref = f"XB-{random.randint(10000, 99999)}"
     
     # Create the booking record in the database
     new_booking = Booking(
@@ -278,19 +303,10 @@ def ai_search():
                 ai_explanation = (f"Smart search found {len(results)} tournament(s) matching the meaning "
                                   f"of your search, ranked by similarity.")
             except Exception as e:
-                print(f"Semantic search unavailable, using keyword search instead: {e}")
+                current_app.logger.warning(f"Semantic search unavailable, using keyword search instead: {e}")
                 db.session.rollback()
                 results = [(t, None) for t in keyword_search(user_text, searchable)]
                 ai_explanation = f"Smart search is unavailable, so these are keyword matches ({len(results)} found)."
 
     return render_template('search.html', form=form, results=results,
                            ai_explanation=ai_explanation, searched=searched)
-
-# --- ERROR HANDLERS ---
-@bp.app_errorhandler(404)
-def page_not_found(e):
-    return render_template('404.html'), 404
-
-@bp.app_errorhandler(500)
-def internal_server_error(e):
-    return render_template('500.html'), 500

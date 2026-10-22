@@ -29,8 +29,8 @@ class LoginForm(FlaskForm):
 
 # Registration form
 class RegistrationForm(FlaskForm):
-    first_name = StringField('First Name', validators=[InputRequired(), Length(max=50)])
-    surname = StringField('Surname', validators=[InputRequired(), Length(max=50)])
+    first_name = StringField('First Name', validators=[DataRequired(), Length(max=50)])
+    surname = StringField('Surname', validators=[DataRequired(), Length(max=50)])
     email = EmailField('Email Address', validators=[
         InputRequired(),
         Email('Please enter a valid email address'),
@@ -38,7 +38,7 @@ class RegistrationForm(FlaskForm):
     contact_number = TelField('Contact Number', validators=[
         InputRequired(),
         Regexp(r'^\+?[0-9 ]{8,15}$', message='Enter a valid phone number (digits and spaces only)')])
-    street_address = StringField('Street Address', validators=[InputRequired(), Length(max=200)])
+    street_address = StringField('Street Address', validators=[DataRequired(), Length(max=200)])
     password = PasswordField('Password', validators=[
         InputRequired(),
         Length(min=8, message='Password must be at least 8 characters')])
@@ -77,14 +77,19 @@ class TournamentForm(FlaskForm):
         ('enhanced', 'Write a Custom/Enhanced Acknowledgement')
     ], default='none')
     
-    custom_ack_text = TextAreaField('Custom Acknowledgement', render_kw={"placeholder": "E.g., We acknowledge the Turrbal and Yuggera peoples as the First Nations owners of the lands where this tournament takes place..."})
-        
+    custom_ack_text = TextAreaField('Custom Acknowledgement', validators=[Length(max=255)], render_kw={"placeholder": "E.g., We acknowledge the Turrbal and Yuggera peoples as the First Nations owners of the lands where this tournament takes place..."})
+
     description = TextAreaField('Description', validators=[DataRequired()])
     capacity = IntegerField('Capacity', default=32, validators=[DataRequired(), NumberRange(min=1)])
-    price = DecimalField('Registration Fee', places=2, default=15.00, validators=[DataRequired(), NumberRange(min=0)])
-    
+    # InputRequired (not DataRequired) so a price of 0 is allowed for free events
+    price = DecimalField('Registration Fee', places=2, default=15.00, validators=[InputRequired(), NumberRange(min=0)])
+
     submit = SubmitField('Publish Tournament')
 
-    def validate_start_time(self, field): 
+    def validate_start_time(self, field):
         if field.data and field.data.date() < date.today():
             raise ValidationError("The tournament date can't be in the past.")
+
+    def validate_custom_ack_text(self, field):
+        if self.ack_statement.data == 'enhanced' and not (field.data or '').strip():
+            raise ValidationError("Write your acknowledgement, or choose a different option.")

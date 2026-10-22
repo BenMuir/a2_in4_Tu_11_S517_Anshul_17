@@ -1,9 +1,11 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_bootstrap import Bootstrap5
 
 # Shared extension objects, created here and attached to the app in create_app()
 db = SQLAlchemy()
 login_manager = LoginManager()
+bootstrap = Bootstrap5()
 
 # Flask-Login: redirect anonymous users to the login page for @login_required routes
 login_manager.login_view = 'auth.login'
