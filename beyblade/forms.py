@@ -4,6 +4,7 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField, Radio
 from wtforms.validators import DataRequired, InputRequired, Length, Email, EqualTo, Regexp, NumberRange, ValidationError
 from wtforms.fields import DateTimeLocalField
 from datetime import date
+import re
 
 # --- SEARCH FORM ---
 # Submitted with GET (?search_query=...&mode=...) so the landing page search box can link straight
@@ -77,7 +78,7 @@ class TournamentForm(FlaskForm):
         ('enhanced', 'Write a Custom/Enhanced Acknowledgement')
     ], default='none')
     
-    custom_ack_text = TextAreaField('Custom Acknowledgement', validators=[Length(max=255)], render_kw={"placeholder": "E.g., We acknowledge the Turrbal and Yuggera peoples as the First Nations owners of the lands where this tournament takes place..."})
+    custom_ack_text = TextAreaField('Your Acknowledgement', validators=[Length(max=500)], render_kw={"placeholder": "Name the Traditional Owners of your venue, recognise their continuing connection to Country, and pay your respects in your own words..."})
 
     description = TextAreaField('Description', validators=[DataRequired()])
     capacity = IntegerField('Capacity', default=32, validators=[DataRequired(), NumberRange(min=1)])
@@ -91,5 +92,15 @@ class TournamentForm(FlaskForm):
             raise ValidationError("The tournament date can't be in the past.")
 
     def validate_custom_ack_text(self, field):
-        if self.ack_statement.data == 'enhanced' and not (field.data or '').strip():
+        if self.ack_statement.data != 'enhanced':
+            return
+        text = (field.data or '').strip()
+        if not text:
             raise ValidationError("Write your acknowledgement, or choose a different option.")
+        if len(text) < 50:
+            raise ValidationError("Your acknowledgement is very short. Name the Traditional Owners of your "
+                                  "venue and pay your respects (at least 50 characters).")
+        # Only Traditional Owners can give a Welcome to Country, so an event page shouldn't claim to
+        if re.search(r'welcome\s+(\w+\s+){0,3}to\s+(this\s+)?country', text, re.IGNORECASE):
+            raise ValidationError("Only Traditional Owners can give a Welcome to Country. Please word this as "
+                                  "an acknowledgement instead.")

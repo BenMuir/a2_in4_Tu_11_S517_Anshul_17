@@ -1,0 +1,72 @@
+{# Acknowledgement of Country builder, shared by the create and edit event forms #}
+<div class="card bg-light border-0 mb-4 p-3">
+  <h5 class="fw-bold mb-2">
+    <i class="bi bi-geo-alt-fill text-warning me-2"></i>Acknowledgement of Country
+  </h5>
+  <p class="small text-muted mb-3">
+    An Acknowledgement of Country shows respect for the Traditional Owners of
+    the land your event is held on. It is different from a Welcome to Country,
+    which only Traditional Owners can give.
+    <a href="{{ url_for('main.aoc_guide') }}" target="_blank" rel="noopener"
+      >Read the full guide <i class="bi bi-box-arrow-up-right small"></i
+    ></a>
+  </p>
+
+  <div class="mb-3">
+    {{ form.ack_statement.label(class="form-label fw-semibold") }} {{
+    form.ack_statement(class="form-select") }}
+    <div class="form-text">
+      The generic option reads: "{{ aoc_generic }}" Writing your own lets you
+      name the specific Traditional Owners of your venue.
+    </div>
+  </div>
+
+  <!-- Guidance for writing an enhanced acknowledgement (expandable, no JavaScript needed) -->
+  <details class="mb-2">
+    <summary class="fw-semibold small">How to write your own acknowledgement</summary>
+    <ol class="small mt-2 mb-1">
+      {% for title, text in aoc_prompts %}
+      <li><strong>{{ title }}</strong> {{ text }}</li>
+      {% endfor %}
+    </ol>
+  </details>
+
+  <details class="mb-2">
+    <summary class="fw-semibold small">Whose Country is my venue on?</summary>
+    <table class="table table-sm small mt-2 mb-1">
+      <tbody>
+        {% for city, state, custodians in aoc_custodians %}
+        <tr>
+          <td class="fw-semibold text-nowrap">{{ city }}</td>
+          <td>{{ custodians }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="small text-muted mb-1">
+      Outside these city centres, or if you're unsure, check the
+      <a href="https://aiatsis.gov.au/explore/map-indigenous-australia" target="_blank" rel="noopener"
+        >AIATSIS map</a
+      >
+      and your local council or Land Council.
+    </div>
+  </details>
+
+  <details class="mb-3">
+    <summary class="fw-semibold small">Common mistakes to avoid</summary>
+    <ul class="small mt-2 mb-1">
+      {% for title, text in aoc_mistakes %}
+      <li><strong>{{ title }}.</strong> {{ text }}</li>
+      {% endfor %}
+    </ul>
+  </details>
+
+  <div class="mb-1">
+    {{ form.custom_ack_text.label(class="form-label fw-semibold") }} {{
+    form.custom_ack_text(class="form-control", rows="4") }}
+    <div class="form-text">
+      Only used when "Write a Custom/Enhanced Acknowledgement" is selected (up
+      to 500 characters).
+    </div>
+  </div>
+</div>

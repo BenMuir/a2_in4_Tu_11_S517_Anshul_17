@@ -36,25 +36,8 @@
             {{ form.venue(class="form-control") }}
           </div>
 
-          <!-- Acknowledgement of Country Section -->
-          <div class="card bg-light border-0 mb-4 p-3">
-            <h5 class="fw-bold mb-3">
-              <i class="bi bi-geo-alt-fill text-warning me-2"></i>Acknowledgement of Country
-            </h5>
-            <div class="mb-3">
-              {{ form.ack_statement.label(class="form-label fw-semibold") }} 
-              {{ form.ack_statement(class="form-select") }}
-              <div class="form-text">
-                Adding an Acknowledgement of Country pays respect to the Traditional Custodians of the land where your event is held.
-              </div>
-            </div>
-
-            <div class="mb-2">
-              {{ form.custom_ack_text.label(class="form-label fw-semibold") }}
-              {{ form.custom_ack_text(class="form-control", rows="3") }}
-              <div class="form-text">Only used when "Write a Custom/Enhanced Acknowledgement" is selected.</div>
-            </div>
-          </div>
+          <!-- Acknowledgement of Country builder -->
+          {% include '_aoc_builder.html' %}
 
           <!-- NEW: Dual Image Selection -->
           <div class="row g-3 mb-4">

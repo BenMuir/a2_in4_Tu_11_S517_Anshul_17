@@ -60,7 +60,7 @@ class Tournament(db.Model):
             nullable=False,
             )
     
-    custom_ack_text = db.Column(db.String(255), nullable=True)
+    custom_ack_text = db.Column(db.String(500), nullable=True)
         
     status = db.Column(
         db.Enum('open', 'sold_out', 'inactive', 'cancelled',

@@ -5,6 +5,7 @@ from sqlalchemy import or_
 from . import db
 from .models import Tournament, Comment, Booking
 from .forms import AISearchForm, TournamentForm
+from . import aoc
 import os
 import random
 from datetime import datetime, timedelta
@@ -45,6 +46,22 @@ CATEGORIES = [
     ('freeplay', 'Casual Free-Play'),
 ]
 
+@bp.app_template_filter('event_image')
+def event_image(filename):
+    # Use a default banner if the event has no image or the file is missing
+    if filename and os.path.isfile(os.path.join(current_app.static_folder, 'img', filename)):
+        return filename
+    return 'event-deck3v3.jpg'
+
+
+@bp.app_context_processor
+def acknowledgement_content():
+    # Acknowledgement of Country guidance used by the guide page, event forms and event pages
+    return dict(aoc_generic=aoc.GENERIC_ACKNOWLEDGEMENT, aoc_custodians=aoc.CAPITAL_CUSTODIANS,
+                aoc_resources=aoc.RESOURCES, aoc_mistakes=aoc.COMMON_MISTAKES,
+                aoc_prompts=aoc.WRITING_PROMPTS)
+
+
 @bp.before_app_request
 def refresh_event_statuses():
     # Keep event statuses current before any page reads them
@@ -67,6 +84,10 @@ def index():
     tournaments = query.order_by(Tournament.start_time).all()
     return render_template('index.html', tournaments=tournaments,
                            categories=CATEGORIES, active_category=category)
+
+@bp.route('/acknowledgement-of-country')
+def aoc_guide():
+    return render_template('acknowledgement.html')
 
 @bp.route('/booking-history')
 @login_required
@@ -223,6 +244,8 @@ def edit_event(id):
         tournament.description = form.description.data
         tournament.capacity = form.capacity.data
         tournament.price = form.price.data
+        tournament.ack_statement = form.ack_statement.data
+        tournament.custom_ack_text = form.custom_ack_text.data
         
         # Handle image upload if a new file was provided
         if form.custom_image.data and hasattr(form.custom_image.data, 'filename') and form.custom_image.data.filename:
@@ -243,7 +266,7 @@ def edit_event(id):
     return render_template('edit-event.html', form=form, tournament=tournament)
 
 # --- CANCEL EVENT ROUTE ---
-@bp.route('/event/<int:id>/cancel', methods=['POST'])
+@bp.route('/event/<int:id>/cancel', methods=['GET', 'POST'])
 @login_required
 def cancel_event(id):
     tournament = Tournament.query.get_or_404(id)
@@ -252,6 +275,14 @@ def cancel_event(id):
     if tournament.host_id != current_user.id:
         flash('You do not have permission to cancel this event.', 'danger')
         return redirect(url_for('main.event_details', id=tournament.id))
+
+    if tournament.status == 'cancelled':
+        flash('This event has already been cancelled.', 'info')
+        return redirect(url_for('main.event_details', id=tournament.id))
+
+    # Ask the host to confirm before cancelling
+    if request.method == 'GET':
+        return render_template('cancel-event.html', tournament=tournament)
         
     # We change the status rather than deleting it so user booking histories don't break
     tournament.status = 'cancelled'

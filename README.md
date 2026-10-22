@@ -18,6 +18,7 @@ beyblade/
   auth.py               Register / login / logout routes
   routes.py             Events, bookings, comments, search
   semantic_search.py    AI search (sentence-transformers, all-MiniLM-L6-v2)
+  aoc.py                Acknowledgement of Country guidance (custodians, sources, prompts)
   templates/  static/
 ```
 
