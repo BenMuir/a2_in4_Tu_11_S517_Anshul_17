@@ -63,47 +63,24 @@ endblock %} {% block content %}
         </p>
       </div>
 
-      <!-- Format Category Pills -->
+      <!-- Format Category Links (filtered by the server, e.g. /?category=deck3v3) -->
       <div
         class="btn-group flex-wrap"
         role="group"
         aria-label="Filter events by category"
       >
-        <button
-          type="button"
-          class="btn btn-outline-secondary active btn-sm"
-          data-filter="all"
+        <a
+          href="{{ url_for('main.index') }}#events-section"
+          class="btn btn-outline-secondary btn-sm {% if not active_category %}active{% endif %}"
+          >All Formats</a
         >
-          All Formats
-        </button>
-        <button
-          type="button"
-          class="btn btn-outline-secondary btn-sm"
-          data-filter="deck3v3"
+        {% for value, label in categories %}
+        <a
+          href="{{ url_for('main.index', category=value) }}#events-section"
+          class="btn btn-outline-secondary btn-sm {% if active_category == value %}active{% endif %}"
+          >{{ label }}</a
         >
-          3v3 Deck
-        </button>
-        <button
-          type="button"
-          class="btn btn-outline-secondary btn-sm"
-          data-filter="swiss1v1"
-        >
-          1v1 Swiss
-        </button>
-        <button
-          type="button"
-          class="btn btn-outline-secondary btn-sm"
-          data-filter="limited"
-        >
-          Limited Format
-        </button>
-        <button
-          type="button"
-          class="btn btn-outline-secondary btn-sm"
-          data-filter="freeplay"
-        >
-          Casual Free-Play
-        </button>
+        {% endfor %}
       </div>
     </div>
 
@@ -200,7 +177,7 @@ endblock %} {% block content %}
       <!-- If the database is empty -->
       {% else %}
       <div class="col-12 text-center py-5">
-        <h4 class="text-muted">No upcoming tournaments found.</h4>
+        <h4 class="text-muted">No upcoming tournaments found{% if active_category %} in this format{% endif %}.</h4>
         <p>
           Be the first to
           <a href="{{ url_for('main.create_event') }}">host one!</a>
@@ -211,31 +188,4 @@ endblock %} {% block content %}
   </section>
 </main>
 
-<!-- Client-side category filtering logic -->
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const filterButtons = document.querySelectorAll("[data-filter]");
-
-    filterButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        // Update active button styling
-        filterButtons.forEach((btn) => btn.classList.remove("active"));
-        button.classList.add("active");
-
-        const selectedFilter = button.getAttribute("data-filter");
-        const allCurrentCards = document.querySelectorAll(".event-item");
-
-        // Filter cards based on data-category attribute
-        allCurrentCards.forEach((card) => {
-          const cardCategory = card.getAttribute("data-category");
-          if (selectedFilter === "all" || cardCategory === selectedFilter) {
-            card.classList.remove("d-none");
-          } else {
-            card.classList.add("d-none");
-          }
-        });
-      });
-    });
-  });
-</script>
 {% endblock %}
