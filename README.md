@@ -73,6 +73,25 @@ the model (~90 MB) downloads automatically the first time a search runs.
 If sentence-transformers is not installed, Smart search automatically falls back to
 keyword search, so the rest of the site works without it.
 
+### Trying the AI search
+Smart search needs to be tested by running the site locally (see Setup and Run above).
+On the deployed PythonAnywhere site it falls back to keyword search, because the AI
+library is too large for the free tier.
+
+Open **AI Search** in the navbar and try these with the demo data, first with
+**Smart search (AI)** and then the same search with **Keyword search**:
+
+| Search | Smart search (AI) | Keyword search |
+|---|---|---|
+| beginner friendly casual games | Melbourne Casual Spin Meetup, West End Friday Night Swiss | No results |
+| somewhere to take my kids to play | Melbourne Casual Spin Meetup | No results |
+| cheap night game near West End | West End Friday Night Swiss (top match) | No results |
+| pizza cooking class | No results (unrelated searches are filtered out) | No results |
+
+Keyword search only finds events that contain every word of the search, so these
+natural-language searches find nothing, while Smart search matches events by meaning.
+You can also type your own searches; results are ranked by their "% match" score.
+
 ## Deploying to PythonAnywhere
 1. In a PythonAnywhere Bash console, clone the repo and create a virtualenv:
    ```
