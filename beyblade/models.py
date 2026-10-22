@@ -50,10 +50,7 @@ class Tournament(db.Model):
         
     capacity = db.Column(db.Integer, nullable=False)
     price = db.Column(db.Numeric(6, 2), nullable=False, default=0)
-    ack_statement = db.Column(db.String(20), default='none')
-    custom_ack_text = db.Column(db.Text, nullable=True)
 
-        
     ack_statement = db.Column(
         db.Enum('none', 'generic', 'enhanced',
             name='ack_statement',
@@ -63,7 +60,7 @@ class Tournament(db.Model):
             nullable=False,
             )
     
-    custom_ack_text = db.Column(db.String(255), nullable=True)
+    custom_ack_text = db.Column(db.String(500), nullable=True)
         
     status = db.Column(
         db.Enum('open', 'sold_out', 'inactive', 'cancelled',

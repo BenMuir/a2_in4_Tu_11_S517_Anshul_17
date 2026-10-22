@@ -13,6 +13,7 @@
         <!-- enctype="multipart/form-data" is REQUIRED for image uploads -->
         <form method="POST" action="" enctype="multipart/form-data">
           {{ form.hidden_tag() }}
+          {% include '_form_errors.html' %}
 
           <div class="mb-3">
             {{ form.title.label(class="form-label fw-semibold") }} 
@@ -27,9 +28,6 @@
             <div class="col-md-6">
               {{ form.start_time.label(class="form-label fw-semibold") }} 
               {{ form.start_time(class="form-control") }} 
-              {% for error in form.start_time.errors %}
-              <span class="text-danger small">{{ error }}</span>
-              {% endfor %}
             </div>
           </div>
 
@@ -38,26 +36,10 @@
             {{ form.venue(class="form-control") }}
           </div>
 
-          <!-- Acknowledgement of Country Section -->
-          <div class="card bg-light border-0 mb-4 p-3">
-            <h5 class="fw-bold mb-3">
-              <i class="bi bi-geo-alt-fill text-warning me-2"></i>Acknowledgement of Country
-            </h5>
-            <div class="mb-3">
-              {{ form.ack_statement.label(class="form-label fw-semibold") }} 
-              {{ form.ack_statement(class="form-select", id="ackSelect") }}
-              <div class="form-text">
-                Adding an Acknowledgement of Country pays respect to the Traditional Custodians of the land where your event is held.
-              </div>
-            </div>
+          <!-- Acknowledgement of Country builder -->
+          {% include '_aoc_builder.html' %}
 
-            <div class="mb-2" id="customAckDiv" style="display: none">
-              {{ form.custom_ack_text.label(class="form-label fw-semibold") }}
-              {{ form.custom_ack_text(class="form-control", rows="3") }}
-            </div>
-          </div>
-
-          <!-- NEW: Dual Image Selection -->
+          <!-- Event image: choose a preset or upload your own -->
           <div class="row g-3 mb-4">
             <div class="col-md-6">
               {{ form.default_image.label(class="form-label fw-semibold") }} 
@@ -100,26 +82,4 @@
     </div>
   </div>
 </main>
-
-<script>
-  // Simple script to show/hide the custom text box based on dropdown selection
-  document.addEventListener("DOMContentLoaded", function () {
-    const ackSelect = document.getElementById("ackSelect");
-    const customAckDiv = document.getElementById("customAckDiv");
-
-    function toggleCustomAck() {
-      if (ackSelect.value === "enhanced") {
-        customAckDiv.style.display = "block";
-      } else {
-        customAckDiv.style.display = "none";
-      }
-    }
-
-    // Run on page load and when the dropdown changes
-    if(ackSelect) {
-        ackSelect.addEventListener("change", toggleCustomAck);
-        toggleCustomAck();
-    }
-  });
-</script>
 {% endblock %}

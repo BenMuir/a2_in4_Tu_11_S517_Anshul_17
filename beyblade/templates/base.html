@@ -32,19 +32,8 @@
         <a class="navbar-brand" href="{{ url_for('main.index') }}">
           <i class="bi bi-tornado me-1 text-warning"></i>X-<span>BURST</span>
         </a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarContent"
-          aria-controls="navbarContent"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarContent">
+        <!-- Menu links; they stack under the logo on small screens -->
+        <div class="navbar-collapse" id="navbarContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('main.index') }}"
@@ -120,6 +109,11 @@
           <strong>X-Burst</strong> Competitive Tabletop Event Management
           Platform
         </p>
+        <p class="mb-1">
+          <a href="{{ url_for('main.aoc_guide') }}" class="link-light"
+            >Acknowledgement of Country guide</a
+          >
+        </p>
         <p class="mb-0">
           &copy; 2026 X-Burst Community. All rights reserved. Built with
           Bootstrap 5.
@@ -127,7 +121,5 @@
       </div>
     </footer>
 
-    <!-- Bootstrap 5 Bundle JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>

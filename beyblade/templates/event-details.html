@@ -19,11 +19,12 @@ Event Details{% endblock %} {% block content %}
     <i class="bi bi-geo-alt-fill text-warning fs-4 me-3"></i>
     <div>
       <strong>Acknowledgement of Country:</strong>
-      {% if tournament.ack_statement == 'generic' %} We acknowledge the
-      Traditional Custodians of the land on which this tournament takes place,
-      and pay our respects to Elders past, present, and emerging. {% elif
+      {% if tournament.ack_statement == 'generic' %} {{ aoc_generic }} {% elif
       tournament.ack_statement == 'enhanced' and tournament.custom_ack_text %}
       {{ tournament.custom_ack_text }} {% endif %}
+      <a href="{{ url_for('main.aoc_guide') }}" class="small ms-1 text-nowrap"
+        >What is this?</a
+      >
     </div>
   </div>
   {% endif %}
@@ -34,11 +35,10 @@ Event Details{% endblock %} {% block content %}
       <!-- Banner Image & Event Header Card -->
       <div class="card border-0 shadow-sm overflow-hidden mb-4">
         <img
-          src="{{ url_for('static', filename='img/' + tournament.image) }}"
+          src="{{ url_for('static', filename='img/' + tournament.image|event_image) }}"
           class="img-fluid"
           alt="{{ tournament.title }} Arena"
           style="max-height: 380px; object-fit: cover; width: 100%"
-          onerror="this.src=`{{ url_for('static', filename='img/event-deck3v3.jpg') }}`;"
         />
         <div class="card-body p-4">
           <div
@@ -85,24 +85,14 @@ Event Details{% endblock %} {% block content %}
               <i class="bi bi-pencil me-1"></i> Edit Event
             </a>
 
-            <!-- Cancel Event Form -->
+            <!-- Cancel Event (opens a confirmation page) -->
             {% if tournament.status != 'cancelled' %}
-            <form
-              action="{{ url_for('main.cancel_event', id=tournament.id) }}"
-              method="POST"
-              onsubmit="
-                return confirm(
-                  'Are you sure you want to cancel this event? This will stop all future bookings.',
-                );
-              "
+            <a
+              href="{{ url_for('main.cancel_event', id=tournament.id) }}"
+              class="btn btn-outline-danger btn-sm fw-semibold"
             >
-              <button
-                type="submit"
-                class="btn btn-outline-danger btn-sm fw-semibold"
-              >
-                <i class="bi bi-x-circle me-1"></i> Cancel Event
-              </button>
-            </form>
+              <i class="bi bi-x-circle me-1"></i> Cancel Event
+            </a>
             {% endif %}
           </div>
           {% endif %}
@@ -237,19 +227,9 @@ Event Details{% endblock %} {% block content %}
         <div class="p-3 bg-light rounded border mb-3 small">
           <div class="d-flex justify-content-between mb-1">
             <span>Available Slots:</span>
-            <strong class="text-success"
-              >{{ tournament.capacity }} Total Slots</strong
+            <strong class="{% if tournament.capacity > 0 %}text-success{% else %}text-danger{% endif %}"
+              >{{ tournament.capacity }} remaining</strong
             >
-          </div>
-          <div class="progress" style="height: 6px">
-            <div
-              class="progress-bar bg-success"
-              role="progressbar"
-              style="width: 100%"
-              aria-valuenow="100"
-              aria-valuemin="0"
-              aria-valuemax="100"
-            ></div>
           </div>
         </div>
 
@@ -292,12 +272,14 @@ Event Details{% endblock %} {% block content %}
         </form>
         {% endif %}
         {% else %}
-        <!-- Lock the form if the event is full or inactive -->
+        <!-- Explain why the event can't be booked -->
         <div
           class="alert alert-warning text-center py-3 mb-3 border-warning fw-semibold"
         >
-          <i class="bi bi-exclamation-circle me-1"></i> Event is Sold Out or
-          Closed
+          <i class="bi bi-exclamation-circle me-1"></i>
+          {% if tournament.status == 'cancelled' %}This event has been cancelled
+          {% elif tournament.status == 'inactive' %}This event has already taken place
+          {% else %}This event is sold out{% endif %}
         </div>
         {% endif %}
 

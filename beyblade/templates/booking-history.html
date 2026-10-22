@@ -35,8 +35,8 @@ endblock %} {% block content %}
   <!-- JINJA CALCULATIONS: Tally up user's metrics dynamically -->
   {% set total_bookings = current_user.bookings|length %} {% set ns =
   namespace(total_spent=0, active_tickets=0) %} {% for booking in
-  current_user.bookings %} {% set ns.total_spent = ns.total_spent +
-  booking.total_paid %} {% if booking.status == 'confirmed' %} {% set
+  current_user.bookings %} {% if booking.status != 'cancelled' %}{% set ns.total_spent = ns.total_spent +
+  booking.total_paid %}{% endif %} {% if booking.status == 'confirmed' %} {% set
   ns.active_tickets = ns.active_tickets + booking.quantity %} {% endif %} {%
   endfor %}
 

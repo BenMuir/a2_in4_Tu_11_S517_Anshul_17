@@ -5,13 +5,10 @@ from sqlalchemy import or_
 from . import db
 from .models import Tournament, Comment, Booking
 from .forms import AISearchForm, TournamentForm
-from dotenv import load_dotenv
+from . import aoc
 import os
 import random
-from datetime import timedelta
-
-# Load the hidden variables from your .env file
-load_dotenv()
+from datetime import datetime, timedelta
 
 # Semantic search needs sentence-transformers. If it isn't installed (e.g. on the
 # deployment server), the search page falls back to keyword search instead.
@@ -31,7 +28,16 @@ def update_embedding(tournament):
         semantic_search.embed_tournament(tournament)
     except Exception as e:
         # Saving the event matters more than its embedding; search creates it later if missing
-        print(f"Could not create search embedding: {e}")
+        current_app.logger.warning(f"Could not create search embedding: {e}")
+
+
+def mark_past_events_inactive():
+    # Events whose date has passed become Inactive (cancelled events keep their status)
+    Tournament.query.filter(
+        Tournament.status.in_(['open', 'sold_out']),
+        Tournament.start_time < datetime.now()
+    ).update({'status': 'inactive'}, synchronize_session=False)
+    db.session.commit()
 
 CATEGORIES = [
     ('deck3v3', '3v3 Deck'),
@@ -39,6 +45,29 @@ CATEGORIES = [
     ('limited', 'Limited Format'),
     ('freeplay', 'Casual Free-Play'),
 ]
+
+@bp.app_template_filter('event_image')
+def event_image(filename):
+    # Use a default banner if the event has no image or the file is missing
+    if filename and os.path.isfile(os.path.join(current_app.static_folder, 'img', filename)):
+        return filename
+    return 'event-deck3v3.jpg'
+
+
+@bp.app_context_processor
+def acknowledgement_content():
+    # Acknowledgement of Country guidance used by the guide page, event forms and event pages
+    return dict(aoc_generic=aoc.GENERIC_ACKNOWLEDGEMENT, aoc_custodians=aoc.CAPITAL_CUSTODIANS,
+                aoc_resources=aoc.RESOURCES, aoc_mistakes=aoc.COMMON_MISTAKES,
+                aoc_prompts=aoc.WRITING_PROMPTS)
+
+
+@bp.before_app_request
+def refresh_event_statuses():
+    # Keep event statuses current before any page reads them
+    if request.endpoint and request.endpoint != 'static':
+        mark_past_events_inactive()
+
 
 @bp.route('/')
 def index():
@@ -56,27 +85,31 @@ def index():
     return render_template('index.html', tournaments=tournaments,
                            categories=CATEGORIES, active_category=category)
 
+@bp.route('/acknowledgement-of-country')
+def aoc_guide():
+    return render_template('acknowledgement.html')
+
 @bp.route('/booking-history')
 @login_required
 def booking_history():
     return render_template('booking-history.html')
 
-# --- DYNAMIC EVENT DETAILS ROUTE ---
+# DYNAMIC EVENT DETAILS ROUTE
 @bp.route('/event/<int:id>')
 def event_details(id):
     # Fetch the specific tournament by its ID, or return a 404 error if it doesn't exist
     tournament = Tournament.query.get_or_404(id)
     return render_template('event-details.html', tournament=tournament)
 
-# --- ADD COMMENT ROUTE ---
+# ADD COMMENT ROUTE
 @bp.route('/event/<int:id>/comment', methods=['POST'])
 @login_required
 def add_comment(id):
     tournament = Tournament.query.get_or_404(id)
     
-    # Grab the text from the standard HTML form
-    body = request.form.get('body')
-    
+    # Grab the text from the standard HTML form, ignoring comments that are only spaces
+    body = request.form.get('body', '').strip()
+
     if body:
         new_comment = Comment(
             body=body,
@@ -89,7 +122,7 @@ def add_comment(id):
         
     return redirect(url_for('main.event_details', id=tournament.id))
 
-# --- EVENT CREATION ROUTE ---
+# EVENT CREATION ROUTE
 @bp.route('/create-event', methods=['GET', 'POST'])
 @login_required
 def create_event():
@@ -132,15 +165,26 @@ def create_event():
         
     return render_template('create-event.html', form=form)
 
-# --- BOOKING ROUTE ---
+# BOOKING ROUTE
 @bp.route('/event/<int:id>/book', methods=['POST'])
 @login_required
 def book_event(id):
     tournament = Tournament.query.get_or_404(id)
     
-    # Grab the quantity the user selected from the dropdown
-    quantity = int(request.form.get('quantity', 1))
-    
+    # Only open events can be booked (not sold out, cancelled or already finished)
+    if tournament.status != 'open':
+        flash('This event is no longer taking bookings.', 'danger')
+        return redirect(url_for('main.event_details', id=tournament.id))
+
+    # Grab the quantity the user selected from the dropdown (1 to 3 slots per booking)
+    try:
+        quantity = int(request.form.get('quantity', 1))
+    except ValueError:
+        quantity = 0
+    if not 1 <= quantity <= 3:
+        flash('Please choose between 1 and 3 player slots.', 'danger')
+        return redirect(url_for('main.event_details', id=tournament.id))
+
     # Security check: Does the event have enough capacity?
     if tournament.capacity < quantity:
         flash('Sorry, there are not enough slots left for this event.', 'danger')
@@ -149,8 +193,10 @@ def book_event(id):
     # Calculate total price
     total_paid = quantity * tournament.price
     
-    # Generate a random 5-digit order reference (e.g., XB-84920)
+    # Generate a random 5-digit order reference (e.g., XB-84920), retrying if it's already taken
     order_ref = f"XB-{random.randint(10000, 99999)}"
+    while Booking.query.filter_by(order_ref=order_ref).first():
+        order_ref = f"XB-{random.randint(10000, 99999)}"
     
     # Create the booking record in the database
     new_booking = Booking(
@@ -175,7 +221,7 @@ def book_event(id):
     flash(f'Successfully booked {quantity} ticket(s)! Your order reference is {order_ref}.', 'success')
     return redirect(url_for('main.booking_history'))
 
-# --- EDIT EVENT ROUTE ---
+# EDIT EVENT ROUTE
 @bp.route('/edit-event/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_event(id):
@@ -198,6 +244,8 @@ def edit_event(id):
         tournament.description = form.description.data
         tournament.capacity = form.capacity.data
         tournament.price = form.price.data
+        tournament.ack_statement = form.ack_statement.data
+        tournament.custom_ack_text = form.custom_ack_text.data
         
         # Handle image upload if a new file was provided
         if form.custom_image.data and hasattr(form.custom_image.data, 'filename') and form.custom_image.data.filename:
@@ -217,8 +265,8 @@ def edit_event(id):
         
     return render_template('edit-event.html', form=form, tournament=tournament)
 
-# --- CANCEL EVENT ROUTE ---
-@bp.route('/event/<int:id>/cancel', methods=['POST'])
+# CANCEL EVENT ROUTE
+@bp.route('/event/<int:id>/cancel', methods=['GET', 'POST'])
 @login_required
 def cancel_event(id):
     tournament = Tournament.query.get_or_404(id)
@@ -227,6 +275,14 @@ def cancel_event(id):
     if tournament.host_id != current_user.id:
         flash('You do not have permission to cancel this event.', 'danger')
         return redirect(url_for('main.event_details', id=tournament.id))
+
+    if tournament.status == 'cancelled':
+        flash('This event has already been cancelled.', 'info')
+        return redirect(url_for('main.event_details', id=tournament.id))
+
+    # Ask the host to confirm before cancelling
+    if request.method == 'GET':
+        return render_template('cancel-event.html', tournament=tournament)
         
     # We change the status rather than deleting it so user booking histories don't break
     tournament.status = 'cancelled'
@@ -251,7 +307,7 @@ def keyword_search(user_text, searchable):
     return query.order_by(Tournament.start_time).all()
 
 
-# --- AI SEMANTIC SEARCH ROUTE ---
+# AI SEMANTIC SEARCH ROUTE
 @bp.route('/search')
 def ai_search():
     form = AISearchForm(request.args)
@@ -278,19 +334,10 @@ def ai_search():
                 ai_explanation = (f"Smart search found {len(results)} tournament(s) matching the meaning "
                                   f"of your search, ranked by similarity.")
             except Exception as e:
-                print(f"Semantic search unavailable, using keyword search instead: {e}")
+                current_app.logger.warning(f"Semantic search unavailable, using keyword search instead: {e}")
                 db.session.rollback()
                 results = [(t, None) for t in keyword_search(user_text, searchable)]
                 ai_explanation = f"Smart search is unavailable, so these are keyword matches ({len(results)} found)."
 
     return render_template('search.html', form=form, results=results,
                            ai_explanation=ai_explanation, searched=searched)
-
-# --- ERROR HANDLERS ---
-@bp.app_errorhandler(404)
-def page_not_found(e):
-    return render_template('404.html'), 404
-
-@bp.app_errorhandler(500)
-def internal_server_error(e):
-    return render_template('500.html'), 500

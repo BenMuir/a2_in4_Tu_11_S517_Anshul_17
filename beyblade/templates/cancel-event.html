@@ -1,0 +1,38 @@
+{% extends 'base.html' %} {% block title %}Cancel {{ tournament.title }} |
+X-Burst{% endblock %} {% block content %}
+<main class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card border-0 shadow-sm p-4 p-md-5 text-center">
+        <i class="bi bi-exclamation-triangle text-danger display-4 mb-3"></i>
+        <h3 class="fw-bold mb-2">Cancel this event?</h3>
+        <p class="mb-1 fw-semibold">{{ tournament.title }}</p>
+        <p class="text-muted small mb-4">
+          {{ tournament.start_time.strftime('%a, %d %b %Y') }} &middot; {{
+          tournament.venue }}
+        </p>
+        <p class="text-muted">
+          The event will be marked as Cancelled and will stop taking bookings.
+          Players who already booked will still see it in their registrations.
+          This can't be undone.
+        </p>
+
+        <form
+          method="POST"
+          action="{{ url_for('main.cancel_event', id=tournament.id) }}"
+          class="d-flex justify-content-center gap-2 mt-2"
+        >
+          <a
+            href="{{ url_for('main.event_details', id=tournament.id) }}"
+            class="btn btn-outline-secondary px-4"
+            >Keep Event</a
+          >
+          <button type="submit" class="btn btn-danger px-4 fw-semibold">
+            <i class="bi bi-x-circle me-1"></i>Yes, Cancel Event
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}

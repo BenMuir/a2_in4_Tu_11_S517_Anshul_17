@@ -22,34 +22,6 @@ endblock %} {% block content %}
     </div>
   </header>
 
-  <!-- Publish Success Alert Container -->
-  {% with messages = get_flashed_messages(with_categories=true) %} {% if
-  messages %}
-  <div class="container pt-4">
-    {% for category, message in messages %}
-    <div
-      class="alert alert-{{ category }} alert-dismissible fade show shadow-sm border-0 d-flex align-items-center"
-      role="alert"
-    >
-      {% if category == 'success' %}
-      <i class="bi bi-check-circle-fill fs-4 me-3 text-success"></i>
-      {% else %}
-      <i class="bi bi-info-circle-fill fs-4 me-3 text-primary"></i>
-      {% endif %}
-      <div>
-        <span class="small">{{ message }}</span>
-      </div>
-      <button
-        type="button"
-        class="btn-close"
-        data-bs-dismiss="alert"
-        aria-label="Close"
-      ></button>
-    </div>
-    {% endfor %}
-  </div>
-  {% endif %} {% endwith %}
-
   <!-- Main Tournament Catalog -->
   <section id="events-section" class="container py-5">
     <!-- Catalog Header and Format Filtering Controls -->
@@ -63,7 +35,7 @@ endblock %} {% block content %}
         </p>
       </div>
 
-      <!-- Format Category Links (filtered by the server, e.g. /?category=deck3v3) -->
+      <!-- Format Category Links, e.g. /?category=deck3v3 -->
       <div
         class="btn-group flex-wrap"
         role="group"
@@ -96,10 +68,9 @@ endblock %} {% block content %}
         <div class="card h-100 event-card shadow-sm">
           <!-- Image -->
           <img
-            src="{{ url_for('static', filename='img/' + tournament.image) }}"
+            src="{{ url_for('static', filename='img/' + tournament.image|event_image) }}"
             class="card-img-top"
             alt="{{ tournament.title }}"
-            onerror="this.src=`{{ url_for('static', filename='img/event-deck3v3.jpg') }}`;"
           />
 
           <div class="card-body d-flex flex-column">

@@ -1,0 +1,13 @@
+{# Lists every validation error on a form so the user knows why it wasn't saved #}
+{% if form.errors %}
+<div class="alert alert-danger small" role="alert">
+  <strong>Please fix the following:</strong>
+  <ul class="mb-0 mt-1">
+    {% for field_name, errors in form.errors.items() %}
+    {% for error in errors %}
+    <li>{{ form[field_name].label.text }}: {{ error }}</li>
+    {% endfor %}
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}

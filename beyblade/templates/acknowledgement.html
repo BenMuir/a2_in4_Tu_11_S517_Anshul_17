@@ -1,0 +1,156 @@
+{% extends 'base.html' %} {% block title %}Acknowledgement of Country Guide | X-Burst{%
+endblock %} {% block content %}
+<main class="container py-4">
+  <!-- Breadcrumb Navigation -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('main.index') }}">Tournaments</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        Acknowledgement of Country
+      </li>
+    </ol>
+  </nav>
+
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+      <div class="card border-0 shadow-sm p-4 p-md-5 mb-4">
+        <h2 class="fw-bold mb-3">
+          <i class="bi bi-geo-alt-fill text-warning me-2"></i>Acknowledgement of
+          Country
+        </h2>
+        <p>
+          An Acknowledgement of Country is a way of showing respect for the
+          Traditional Owners and Custodians of the land where an event takes
+          place, and recognising their continuing connection to land, waters and
+          culture. Every X-Burst host can add one to their tournament page.
+        </p>
+
+        <h5 class="fw-bold mt-3">Why it matters</h5>
+        <p>
+          Aboriginal and Torres Strait Islander peoples have cared for Country
+          for tens of thousands of years. Acknowledging this at the start of an
+          event recognises that history and its ongoing importance, and is a
+          small, everyday part of reconciliation: building respectful
+          relationships between First Nations peoples and other Australians.
+        </p>
+
+        <h5 class="fw-bold mt-3">Acknowledgement vs Welcome to Country</h5>
+        <div class="table-responsive">
+          <table class="table table-bordered small align-middle">
+            <thead class="table-light">
+              <tr>
+                <th></th>
+                <th>Welcome to Country</th>
+                <th>Acknowledgement of Country</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Who gives it</th>
+                <td>Only a Traditional Owner or Custodian of that land</td>
+                <td>Anyone, Indigenous or non-Indigenous</td>
+              </tr>
+              <tr>
+                <th scope="row">What it is</th>
+                <td>
+                  Traditional Owners welcoming visitors onto their Country,
+                  sometimes with a speech, song, dance or smoking ceremony
+                </td>
+                <td>
+                  A statement of respect for the Traditional Owners of the land
+                  you are on
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">On X-Burst</th>
+                <td>
+                  Must be arranged directly with the local Traditional Owners;
+                  it can't be added through this site
+                </td>
+                <td>Hosts can add one to any tournament page</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm p-4 p-md-5 mb-4">
+        <h4 class="fw-bold mb-3">Writing a meaningful acknowledgement</h4>
+        <p class="text-muted">
+          There is no single correct wording. These steps help you write one
+          that is specific to your venue and in your own words.
+        </p>
+        <ol>
+          {% for title, text in aoc_prompts %}
+          <li class="mb-2"><strong>{{ title }}</strong> {{ text }}</li>
+          {% endfor %}
+        </ol>
+        <p class="small text-muted mb-0">
+          For example, a host in Brisbane might write about the Turrbal and
+          Yuggera peoples, their continuing connection to the land, and what it
+          means for the local Beyblade community to gather there.
+        </p>
+      </div>
+
+      <div class="card border-0 shadow-sm p-4 p-md-5 mb-4">
+        <h4 class="fw-bold mb-3">Traditional Custodians of capital cities</h4>
+        <p class="text-muted small">
+          These are the peoples commonly acknowledged for each city's central
+          area. Larger cities cover the Country of more than one group, so
+          always check the area your venue is in using the sources below.
+        </p>
+        <div class="table-responsive">
+          <table class="table table-sm small align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>City</th>
+                <th>Traditional Custodians</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for city, state, custodians in aoc_custodians %}
+              <tr>
+                <td class="fw-semibold">{{ city }}, {{ state }}</td>
+                <td>{{ custodians }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm p-4 p-md-5 mb-4">
+        <h4 class="fw-bold mb-3">Finding whose Country your venue is on</h4>
+        <ul class="list-unstyled mb-0">
+          {% for name, url, about in aoc_resources %}
+          <li class="mb-3">
+            {% if url %}
+            <a href="{{ url }}" target="_blank" rel="noopener" class="fw-semibold"
+              >{{ name }} <i class="bi bi-box-arrow-up-right small"></i
+            ></a>
+            {% else %}
+            <span class="fw-semibold">{{ name }}</span>
+            {% endif %}
+            <div class="small text-muted">{{ about }}</div>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="card border-0 shadow-sm p-4 p-md-5 mb-4">
+        <h4 class="fw-bold mb-3">Common mistakes and contested issues</h4>
+        {% for title, text in aoc_mistakes %}
+        <div class="mb-3">
+          <div class="fw-semibold">
+            <i class="bi bi-exclamation-circle text-warning me-1"></i>{{ title }}
+          </div>
+          <div class="small text-muted">{{ text }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}
