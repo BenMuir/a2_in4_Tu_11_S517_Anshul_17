@@ -94,14 +94,14 @@ def aoc_guide():
 def booking_history():
     return render_template('booking-history.html')
 
-# --- DYNAMIC EVENT DETAILS ROUTE ---
+# DYNAMIC EVENT DETAILS ROUTE
 @bp.route('/event/<int:id>')
 def event_details(id):
     # Fetch the specific tournament by its ID, or return a 404 error if it doesn't exist
     tournament = Tournament.query.get_or_404(id)
     return render_template('event-details.html', tournament=tournament)
 
-# --- ADD COMMENT ROUTE ---
+# ADD COMMENT ROUTE
 @bp.route('/event/<int:id>/comment', methods=['POST'])
 @login_required
 def add_comment(id):
@@ -122,7 +122,7 @@ def add_comment(id):
         
     return redirect(url_for('main.event_details', id=tournament.id))
 
-# --- EVENT CREATION ROUTE ---
+# EVENT CREATION ROUTE
 @bp.route('/create-event', methods=['GET', 'POST'])
 @login_required
 def create_event():
@@ -165,7 +165,7 @@ def create_event():
         
     return render_template('create-event.html', form=form)
 
-# --- BOOKING ROUTE ---
+# BOOKING ROUTE
 @bp.route('/event/<int:id>/book', methods=['POST'])
 @login_required
 def book_event(id):
@@ -221,7 +221,7 @@ def book_event(id):
     flash(f'Successfully booked {quantity} ticket(s)! Your order reference is {order_ref}.', 'success')
     return redirect(url_for('main.booking_history'))
 
-# --- EDIT EVENT ROUTE ---
+# EDIT EVENT ROUTE
 @bp.route('/edit-event/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_event(id):
@@ -265,7 +265,7 @@ def edit_event(id):
         
     return render_template('edit-event.html', form=form, tournament=tournament)
 
-# --- CANCEL EVENT ROUTE ---
+# CANCEL EVENT ROUTE
 @bp.route('/event/<int:id>/cancel', methods=['GET', 'POST'])
 @login_required
 def cancel_event(id):
@@ -307,7 +307,7 @@ def keyword_search(user_text, searchable):
     return query.order_by(Tournament.start_time).all()
 
 
-# --- AI SEMANTIC SEARCH ROUTE ---
+# AI SEMANTIC SEARCH ROUTE
 @bp.route('/search')
 def ai_search():
     form = AISearchForm(request.args)

@@ -6,9 +6,9 @@ from wtforms.fields import DateTimeLocalField
 from datetime import date
 import re
 
-# --- SEARCH FORM ---
-# Submitted with GET (?search_query=...&mode=...) so the landing page search box can link straight
-# to results. Searching doesn't change any data, so it doesn't need a CSRF token.
+# SEARCH FORM
+# Submitted with GET (?search_query=...&mode=...) so a search can be linked to or bookmarked.
+# Searching doesn't change any data, so it doesn't need a CSRF token.
 class AISearchForm(FlaskForm):
     class Meta:
         csrf = False
@@ -20,7 +20,7 @@ class AISearchForm(FlaskForm):
     ], default='ai')
     submit = SubmitField('Search')
 
-# --- AUTHENTICATION FORMS ---
+# AUTHENTICATION FORMS
 # Login form - users sign in with their email and password
 class LoginForm(FlaskForm):
     email = EmailField('Email Address', validators=[InputRequired('Enter your email address')])
@@ -48,7 +48,7 @@ class RegistrationForm(FlaskForm):
         EqualTo('password', message='Passwords must match')])
     submit = SubmitField('Create Account')
 
-# --- TOURNAMENT FORM ---
+# TOURNAMENT FORM
 class TournamentForm(FlaskForm):
     title = StringField('Tournament Title', validators=[DataRequired(), Length(max=120)])
     category = SelectField('Tournament Category', choices=[
@@ -82,7 +82,7 @@ class TournamentForm(FlaskForm):
 
     description = TextAreaField('Description', validators=[DataRequired()])
     capacity = IntegerField('Capacity', default=32, validators=[DataRequired(), NumberRange(min=1)])
-    # InputRequired (not DataRequired) so a price of 0 is allowed for free events
+    # InputRequired allows a price of 0 for free events
     price = DecimalField('Registration Fee', places=2, default=15.00, validators=[InputRequired(), NumberRange(min=0)])
 
     submit = SubmitField('Publish Tournament')
