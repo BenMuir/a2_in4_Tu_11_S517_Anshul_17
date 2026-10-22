@@ -6,13 +6,16 @@ __pycache__/
 *.pyc
 
 # Flask / secrets
-instance/
 .env
+
+# Instance folder: ignore everything except the shared demo database
+instance/*
+!instance/beyblade.sqlite
 
 # IDEs and OS files
 .vscode/
 .idea/
 .DS_Store
 
-# Note: The SQLite database (.sqlite) is deliberately NOT ignored here 
+# Note: The SQLite database (instance/beyblade.sqlite) is deliberately NOT ignored
 # so the marker can test the application with existing data.
