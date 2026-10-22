@@ -74,8 +74,11 @@ class Tournament(db.Model):
             nullable=False,
             )
         
+    # Semantic search embedding (list of 384 numbers from all-MiniLM-L6-v2)
+    embedding = db.Column(db.JSON, nullable=True)
+
     host_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.now)    
+    created_at = db.Column(db.DateTime, default=datetime.now)
     
     host = db.relationship('User', back_populates='tournaments_hosted')
     

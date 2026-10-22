@@ -13,20 +13,48 @@ from datetime import timedelta
 # Load the hidden variables from your .env file
 load_dotenv()
 
-# Safely set up the Hugging Face Client (optional for production server without package installed)
+# Semantic search needs sentence-transformers. If it isn't installed (e.g. on the
+# deployment server), the search page falls back to keyword search instead.
 try:
-    from huggingface_hub import InferenceClient
-    client = InferenceClient(api_key=os.getenv("HUGGINGFACE_API_KEY"))
+    from . import semantic_search
 except ImportError:
-    client = None
+    semantic_search = None
 
 bp = Blueprint('main', __name__)
+
+
+def update_embedding(tournament):
+    # Keep the stored search embedding in sync with the tournament's details
+    if semantic_search is None:
+        return
+    try:
+        semantic_search.embed_tournament(tournament)
+    except Exception as e:
+        # Saving the event matters more than its embedding; search creates it later if missing
+        print(f"Could not create search embedding: {e}")
+
+CATEGORIES = [
+    ('deck3v3', '3v3 Deck'),
+    ('swiss1v1', '1v1 Swiss'),
+    ('limited', 'Limited Format'),
+    ('freeplay', 'Casual Free-Play'),
+]
 
 @bp.route('/')
 def index():
     # Fetch both open and sold-out tournaments, ordered by start time
-    tournaments = Tournament.query.filter(Tournament.status.in_(['open', 'sold_out'])).order_by(Tournament.start_time).all()
-    return render_template('index.html', tournaments=tournaments)
+    query = Tournament.query.filter(Tournament.status.in_(['open', 'sold_out']))
+
+    # Browse by category, e.g. /?category=deck3v3 (unknown categories show everything)
+    category = request.args.get('category')
+    if category in dict(CATEGORIES):
+        query = query.filter(Tournament.category == category)
+    else:
+        category = None
+
+    tournaments = query.order_by(Tournament.start_time).all()
+    return render_template('index.html', tournaments=tournaments,
+                           categories=CATEGORIES, active_category=category)
 
 @bp.route('/booking-history')
 @login_required
@@ -94,7 +122,8 @@ def create_event():
             ack_statement=form.ack_statement.data,
             custom_ack_text=form.custom_ack_text.data,
         )
-        
+        update_embedding(new_tournament)
+
         db.session.add(new_tournament)
         db.session.commit()
         
@@ -180,7 +209,8 @@ def edit_event(id):
             tournament.image = filename
         else:
             tournament.image = form.default_image.data
-        
+
+        update_embedding(tournament)
         db.session.commit()
         flash(f'Successfully updated {tournament.title}!', 'success')
         return redirect(url_for('main.event_details', id=tournament.id))
@@ -205,54 +235,56 @@ def cancel_event(id):
     flash(f'Event "{tournament.title}" has been cancelled.', 'warning')
     return redirect(url_for('main.index'))
 
-# --- NEW AI SEARCH ROUTE ---
-@bp.route('/search', methods=['GET', 'POST'])
-def ai_search():
-    form = AISearchForm()
-    results = []
-    ai_explanation = ""
-
-    if form.validate_on_submit():
-        user_text = form.search_query.data
-        print(f"SUCCESS: Form passed! User searched for: {user_text}")
-        
-        try:
-            if client is None:
-                raise Exception("Hugging Face client is not initialized.")
-
-            # Using flan-t5-large via standard text generation bypasses the provider routing errors
-            prompt = f"Extract 1 to 3 core search keywords (like location, style, or format) from this query. Return ONLY the keywords separated by spaces.\n\nQuery: '{user_text}'\nKeywords:"
-            
-            response = client.text_generation(
-                prompt,
-                model="google/flan-t5-large",
-                max_new_tokens=15
+def keyword_search(user_text, searchable):
+    # Traditional search: every word must appear in the title, category, venue or description
+    query = searchable
+    for kw in user_text.split():
+        search_term = f"%{kw}%"
+        query = query.filter(
+            or_(
+                Tournament.title.ilike(search_term),
+                Tournament.category.ilike(search_term),
+                Tournament.venue.ilike(search_term),
+                Tournament.description.ilike(search_term)
             )
-            
-            # Extract the text from the Hugging Face response
-            keywords = response.strip().split()
-            print(f"SUCCESS: AI Extracted Keywords: {keywords}")
-            ai_explanation = f"AI understood your search as: {', '.join(keywords)}"
+        )
+    return query.order_by(Tournament.start_time).all()
 
-        except Exception as e:
-            print(f"API ERROR OR MISSING KEY. Using fallback search. Error: {str(e)}")
-            # Fallback: If AI fails, manually split the sentence so the site doesn't break
-            keywords = user_text.strip().split()
-            query = Tournament.query.filter(Tournament.status == 'open')
-            for kw in keywords:
-                search_term = f"%{kw}%"
-                query = query.filter(
-                    or_(
-                        Tournament.title.ilike(search_term),
-                        Tournament.category.ilike(search_term),
-                        Tournament.venue.ilike(search_term),
-                        Tournament.description.ilike(search_term)
-                    )
-                )
-            results = query.all()
-            ai_explanation = f"AI processing error. Using standard keyword fallback: {', '.join(keywords)}"
 
-    return render_template('search.html', form=form, results=results, ai_explanation=ai_explanation)
+# --- AI SEMANTIC SEARCH ROUTE ---
+@bp.route('/search')
+def ai_search():
+    form = AISearchForm(request.args)
+    results = []  # list of (tournament, similarity score or None)
+    ai_explanation = ""
+    searched = False
+
+    if request.args and form.validate():
+        searched = True
+        user_text = form.search_query.data.strip()
+        # Only search events people can still view and book
+        searchable = Tournament.query.filter(Tournament.status.in_(['open', 'sold_out']))
+
+        if form.mode.data == 'keyword':
+            results = [(t, None) for t in keyword_search(user_text, searchable)]
+            ai_explanation = f"Keyword search found {len(results)} tournament(s) containing all of your words."
+        else:
+            try:
+                if semantic_search is None:
+                    raise RuntimeError("sentence-transformers is not installed")
+                results = semantic_search.search(user_text, searchable.all())
+                # Save any embeddings that were created during the search
+                db.session.commit()
+                ai_explanation = (f"Smart search found {len(results)} tournament(s) matching the meaning "
+                                  f"of your search, ranked by similarity.")
+            except Exception as e:
+                print(f"Semantic search unavailable, using keyword search instead: {e}")
+                db.session.rollback()
+                results = [(t, None) for t in keyword_search(user_text, searchable)]
+                ai_explanation = f"Smart search is unavailable, so these are keyword matches ({len(results)} found)."
+
+    return render_template('search.html', form=form, results=results,
+                           ai_explanation=ai_explanation, searched=searched)
 
 # --- ERROR HANDLERS ---
 @bp.app_errorhandler(404)

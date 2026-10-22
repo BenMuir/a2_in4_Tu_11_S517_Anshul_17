@@ -1,41 +1,82 @@
-{% extends "base.html" %} {% block content %}
-<div class="container mt-5">
-  <h2>AI-Enhanced Tournament Search</h2>
-  <p>
-    Describe what you are looking for, and our AI will find the perfect Beyblade
-    X event.
-  </p>
+{% extends "base.html" %} {% block title %}Search Tournaments | X-Burst{%
+endblock %} {% block content %}
+<main class="container py-4">
+  <!-- Breadcrumb Navigation -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('main.index') }}">Tournaments</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">Search</li>
+    </ol>
+  </nav>
 
-  <form method="POST" action="">
-    {{ form.hidden_tag() }}
-    <div class="form-group mb-3">
-      {{ form.search_query.label(class="form-label") }} {{
-      form.search_query(class="form-control", placeholder="e.g., Casual battles
-      in Brisbane this weekend...") }}
-    </div>
-    {{ form.submit(class="btn btn-primary") }}
-  </form>
+  <div class="card border-0 shadow-sm p-4 mb-4">
+    <h2 class="fw-bold mb-1">Search Tournaments</h2>
+    <p class="text-muted">
+      Describe what you are looking for in your own words, or search for exact
+      keywords.
+    </p>
+
+    <form method="GET" action="{{ url_for('main.ai_search') }}" novalidate>
+      <div class="mb-3">
+        {{ form.search_query.label(class="form-label fw-semibold") }} {{
+        form.search_query(class="form-control" ~ (" is-invalid" if
+        form.search_query.errors else ""), placeholder="e.g. Casual battles for
+        beginners in Brisbane...") }} {% for error in form.search_query.errors
+        %}
+        <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      <!-- Choose between AI semantic search and traditional keyword search -->
+      <div class="mb-3">
+        {% for option in form.mode %}
+        <div class="form-check form-check-inline">
+          {{ option(class="form-check-input") }} {{
+          option.label(class="form-check-label small") }}
+        </div>
+        {% endfor %}
+      </div>
+
+      {{ form.submit(class="btn btn-primary px-4 fw-semibold") }}
+    </form>
+  </div>
 
   {% if ai_explanation %}
-  <div class="alert alert-info mt-4">
+  <div class="alert alert-info">
     <small>{{ ai_explanation }}</small>
   </div>
   {% endif %} {% if results %}
-  <h3 class="mt-4">Search Results:</h3>
-  <div class="row">
-    {% for tournament in results %}
+  <div class="row g-3">
+    {% for tournament, score in results %}
     <div class="col-md-6">
-      <div class="card mb-3">
+      <div class="card h-100 border-0 shadow-sm">
         <div class="card-body">
-          <!-- Changed from tournament.name to tournament.title -->
-          <h5 class="card-title">{{ tournament.title }}</h5>
-          <p class="card-text">{{ tournament.description }}</p>
-          <a href="#" class="btn btn-outline-primary">View Details</a>
+          <div class="d-flex justify-content-between align-items-start gap-2">
+            <h5 class="card-title fw-bold">{{ tournament.title }}</h5>
+            {% if score is not none %}
+            <!-- Cosine similarity between the search and this event, shown as a percentage -->
+            <span class="badge bg-primary-subtle text-primary">{{ (score * 100)|round|int }}% match</span>
+            {% endif %}
+          </div>
+          <p class="small text-muted mb-2">
+            <i class="bi bi-geo-alt me-1"></i>{{ tournament.venue }}<br />
+            <i class="bi bi-clock me-1"></i>{{ tournament.start_time.strftime('%a, %d %b %Y') }}
+            {% if tournament.status == 'sold_out' %}<span class="badge bg-danger ms-1">Sold Out</span>{% endif %}
+          </p>
+          <p class="card-text">{{ tournament.description[:160] }}{% if tournament.description|length > 160 %}...{% endif %}</p>
+          <a href="{{ url_for('main.event_details', id=tournament.id) }}" class="btn btn-outline-primary btn-sm">View Details</a>
         </div>
       </div>
     </div>
     {% endfor %}
   </div>
+  {% elif searched %}
+  <p class="text-muted">
+    No tournaments matched your search. Try describing it differently{% if
+    form.mode.data == 'keyword' %}, or switch to Smart search{% endif %}.
+  </p>
   {% endif %}
-</div>
+</main>
 {% endblock %}

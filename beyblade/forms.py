@@ -1,14 +1,23 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, EmailField, TelField, SelectField, TextAreaField, IntegerField, DecimalField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, RadioField, EmailField, TelField, SelectField, TextAreaField, IntegerField, DecimalField
 from wtforms.validators import DataRequired, InputRequired, Length, Email, EqualTo, Regexp, NumberRange, ValidationError
 from wtforms.fields import DateTimeLocalField
 from datetime import date
 
-# --- AI SEARCH FORM ---
+# --- SEARCH FORM ---
+# Submitted with GET (?search_query=...&mode=...) so the landing page search box can link straight
+# to results. Searching doesn't change any data, so it doesn't need a CSRF token.
 class AISearchForm(FlaskForm):
+    class Meta:
+        csrf = False
+
     search_query = StringField('What kind of tournament are you looking for?', validators=[DataRequired()])
-    submit = SubmitField('Search with AI')
+    mode = RadioField('Search type', choices=[
+        ('ai', 'Smart search (AI) - matches the meaning of your words'),
+        ('keyword', 'Keyword search - matches the exact words')
+    ], default='ai')
+    submit = SubmitField('Search')
 
 # --- AUTHENTICATION FORMS ---
 # Login form - users sign in with their email and password

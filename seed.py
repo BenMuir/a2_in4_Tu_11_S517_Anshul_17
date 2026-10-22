@@ -63,8 +63,9 @@ TOURNAMENTS = [
          category='freeplay', image='event-freeplay.jpg', status='open',
          start=datetime(2026, 11, 28, 13, 0), hours=4,
          venue='Carlton Library, 667 Rathdowne St, Carlton North VIC 3054',
-         description=('Relaxed free-play afternoon - no brackets, no pressure. Bring your collection, '
-                      'trade parts, test combos and meet the Melbourne community. Families welcome.'),
+         description=('Relaxed, family-friendly free-play afternoon for kids and adults - no brackets, '
+                      'no pressure. Bring your collection, trade parts, test combos and meet the '
+                      'Melbourne community. Great for younger bladers and first-timers.'),
          match_points=3, gear='Anything goes', stadium='Xtreme Stadium (BX-10)',
          total_slots=40, price='0.00', ack='generic', ack_text=None),
     dict(key='perth_championship', host='jordan', title='Perth Summer Championship',
@@ -183,6 +184,15 @@ def seed():
                 ack_statement=t['ack'], custom_ack_text=t['ack_text'],
                 host=users[t['host']], created_at=datetime(2026, 9, 25, 9, 0))
         db.session.add_all(tournaments.values())
+
+        # Store each tournament's semantic search embedding (skipped if the AI library isn't installed)
+        try:
+            from beyblade.semantic_search import embed_tournament
+            for tournament in tournaments.values():
+                embed_tournament(tournament)
+            print('Created semantic search embeddings for every tournament.')
+        except ImportError:
+            print('sentence-transformers not installed - embeddings will be created on the first search.')
 
         for ref, u_key, t_key, qty, status, booked_on in BOOKINGS:
             tournament = tournaments[t_key]
